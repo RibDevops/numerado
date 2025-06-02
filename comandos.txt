@@ -1,0 +1,10 @@
+pip download -r requirements.txt -d modules
+Instalar em Modo Offline
+Copie o diretório modules para a máquina onde você deseja instalar os módulos.
+No terminal, navegue até o diretório modules.
+Execute o seguinte comando para instalar os módulos em modo offline:
+
+pip install --no-index --find-links=. <nome do pacote>
+
+
+<a class="nav-link" href="{% url 'perfil' %}">Perfil - {{ request.user.first_name }} - {{ request.user.last_name }}</a>

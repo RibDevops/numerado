@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}Editar Registro{% endblock %}
+{% block content %}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-15">
+            <h3>Editar Registro</h3>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.media }}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                <a href="{% url 'lista_numeracao' id=numeracao.fk_tipo_id %}" class="btn btn-secondary">Cancelar</a>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

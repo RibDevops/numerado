@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}Pagina Inicial{% endblock %}
+{% block content %}
+{% load permission_tags %} 
+
+<!-- Security token -->
+{% csrf_token %}
+
+    <div class="col-8 m-auto pt-4 pb-2">
+        {% if messages %}
+            {% for message in messages %}
+                {% if message.tags == 'success' %}
+                <div class="alert alert-success" role="alert">{{ message }}</div>
+                {% elif message.tags == 'error' %}
+                <div class="alert alert-danger" role="alert">{{ message }}</div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+        {% if user.is_staff %}
+        <a href="{% url 'novo_setor' %}" class="btn btn-success">NOVO SETOR</a>
+        <p></p>
+        {% endif %}
+        <h3>Lista de setores</h3>
+        <table class="table">
+            <thead class="thead-dark">
+              <tr>
+                <th style="text-align: center">Setor</th>
+                <th style="text-align: center">Divisão</th>
+                {% if user.is_staff %}
+                <th style="text-align: center">Ações</th>
+                {% endif %}
+                </tr>
+                </thead>
+                <tbody>
+ 
+    {% for data in dataset %}
+    
+    <tr>
+        <td style="text-align: center">{{ data.setor }}</td>
+        <td style="text-align: center">{{ data.fk_divisao }}</td>
+        
+        {% if user.is_staff %}
+        <td style="text-align: center">
+            <a href="/editar_setor/{{ data.id }}/" class="btn btn-warning">EDITAR</a>
+            <a href="/delete_setor/{{ data.id }}/" class="btn btn-danger">EXCLUIR</a>
+        </td>
+        {% endif %}
+    </tr>
+ 
+    {% endfor %}
+</tbody>
+</table>
+ 
+</div>
+{% endblock %}

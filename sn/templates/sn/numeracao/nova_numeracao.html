@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Pagina Inicial{% endblock %}
+{% block content %}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-15">
+            <!-- Using the formset -->
+            
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form.media }}
+                {{ form.as_p }}
+                <!-- <button class="button" onClick="window.open('{% url 'novo_destino' %}');">
+                    <span class="icon-plus">+</span>
+               </button> -->
+
+               <a href="{% url 'novo_destino' %}" id="add_category" onclick="return showAddAnotherPopup(this);">Add New Category</a>
+               
+                <input style="width: 100%" type="submit" class="btn btn-primary" value="Cadastrar">
+            </form>
+            
+        </div>
+    </div>
+</div>
+
+{% endblock %}

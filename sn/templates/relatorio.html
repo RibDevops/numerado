@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}Pagina Inicial{% endblock %}
+{% block content %}
+
+{% csrf_token %}
+
+        {% if messages %}
+            {% for message in messages %}
+                {% if message.tags == 'success' %}
+                <div class="alert alert-success" role="alert">{{ message }}</div>
+                {% elif message.tags == 'error' %}
+                <div class="alert-error alert" role="alert">{{ message }}</div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+
+        <h1>Logs de Ações dos Usuários</h1>
+    
+        {% for usuario, logs_por_dia in logs_por_usuario_por_dia.items %}
+        <h2>{{ usuario.username }}</h2>
+        <ul>
+            {% for log_por_dia in logs_por_dia %}
+                <li>
+                    <h3>{{ log_por_dia.data|date:"d/m/Y" }}</h3>
+                    <table border="1">
+                        <thead>
+                            <tr>
+                                <th>Ação Realizada</th>
+                                <th>Quantidade</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Cadastrou</td>
+                                <td>{{ log_por_dia.cadastrou }}</td>
+                            </tr>
+                            <tr>
+                                <td>Editou</td>
+                                <td>{{ log_por_dia.editou }}</td>
+                            </tr>
+                            <tr>
+                                <td>Deletou</td>
+                                <td>{{ log_por_dia.deletou }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endfor %}
+
+{% endblock %}

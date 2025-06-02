@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ title }}</title>
+    <style>
+        /* Estilo geral do corpo */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Configurações para a impressão de páginas */
+        @page {
+            margin: 100px 50px; /* Margens da página */
+            @top-right {
+                margin-bottom: -30%; /* Margem inferior para o topo direito */
+                content: "FL " counter(page) "/" counter(pages); /* Conteúdo da numeração de página */
+                font-size: 12px; /* Tamanho da fonte para a numeração */
+                text-align: right; /* Alinhamento à direita */
+            }
+        }
+
+        /* Estilo para o cabeçalho */
+        .header {
+            position: fixed;
+            top: -50px; /* Posiciona o cabeçalho no topo da página */
+            left: 15%; /* Margem à esquerda */
+            right: 0;
+            height: 100px; /* Altura do cabeçalho */
+            text-align: center; /* Alinhamento centralizado do texto */
+        }
+
+        /* Estilo para a primeira seção de conteúdo */
+        .content0 {
+            margin-top: 10px; /* Espaçamento superior para evitar sobreposição com o cabeçalho */
+            margin-right: 50px; /* Margem à direita */
+            margin-left: 50px; /* Margem à esquerda */
+        }
+
+        /* Estilo para a seção principal de conteúdo */
+        .content {
+            margin-top: 10px; /* Espaçamento superior para evitar sobreposição com o cabeçalho */
+            margin-right: 50px; /* Margem à direita */
+            margin-left: 50px; /* Margem à esquerda */
+            text-align: justify; /* Justificação do texto */
+        }
+
+        /* Estilo para o rodapé */
+        .footer {
+            position: fixed;
+            bottom: -20px; /* Posiciona o rodapé no fundo da página */
+            left: 15%; /* Margem à esquerda */
+            right: 0;
+            height: 100px; /* Altura do rodapé */
+            text-align: center; /* Alinhamento centralizado do texto */
+        }
+
+        /* Estilo para o carimbo */
+        .carimbo {
+            float: right; /* Flutua o carimbo para a direita */
+            position: relative; /* Posição relativa para o carimbo */
+        }
+
+        /* Classe para forçar quebra de página */
+        .page-break {
+            page-break-after: always; /* Quebra de página após o elemento */
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        {% block cabecalho_rodape_cabecalho %}
+        {% endblock %}
+    </div>
+
+    <div class="carimbo">
+        <img src="media/carimbo.png">
+    </div>
+
+    <div class="content0">
+        {% block cabecalho2 %}
+        {% endblock %}
+    </div>
+
+    <div class="content">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <div class="footer">
+        {% block cabecalho_rodape_rodape %}
+        {% endblock %}
+    </div>
+</body>
+</html>

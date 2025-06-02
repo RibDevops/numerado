@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load permission_tags %}
+{% block title %}Pagina Inicial{% endblock %}
+{% block content %}
+
+
+{% csrf_token %}
+<div class="container">
+    <div class="row">
+        {% if messages %}
+            {% for message in messages %}
+                {% if message.tags == 'success' %}
+                <div class="alert alert-success" role="alert">{{ message }}</div>
+                {% elif message.tags == 'error' %}
+                <div class="alert alert-danger" role="alert">{{ message }}</div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+
+        
+        <div class="col-md-15">
+        <form method="POST" action="{% url 'reset' %}" class="formLogin">
+            {% csrf_token %}
+            <h1>Alterar senha</h1>
+
+            {% comment %} {% if user|has_role:'sin' %} {% endcomment %}
+            {% if user|can:'reset_user' %}
+            <label for="username">Usuário</label><br />
+            <select name="username">
+            {% for user in users %}
+            <option value="{{ user.username }}">{{ user.username }}</option>
+            
+            {% comment %} <input type="text" name="username" /> {% endcomment %}
+            {% endfor %}
+        </select>
+        <br /><br />
+            {% else %}
+            <input type="hidden" name="username" value='{{ user }}'/><br /><br />
+            {% endif %}
+            <label for="password">Senha</label><br />
+            <input type="password" name="password" /><br /><br />
+
+            <label for="password">Confirmar senha</label><br />
+            <input type="password" name="password2" /><br /><br />
+            
+            <button type="submit" class="btn btn-warning">Alterar</button><br />
+        </form>
+    </div>
+    
+{% endblock %}

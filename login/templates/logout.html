@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Pagina Inicial{% endblock %}
+{% load permission_tags %}
+{% block content %}
+
+{% csrf_token %}
+<div class="container">
+    <div class="row">
+    <h2>You have been logged out</h2>
+    <div class="border-top pt-3"  style="min-height:65vh;">
+        <small class="text-muted">
+            <a href="{% url 'login' %}">Log In Again</a>
+        </small>
+    </div>
+{% endblock content %}

@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Pagina Inicial{% endblock %}
+{% block content %}
+{% load permission_tags %} 
+
+<!-- Security token -->
+{% csrf_token %}
+
+    <div class="col-8 m-auto pt-4 pb-2">
+            {% if messages %}
+            {% for message in messages %}
+                {% if message.tags == 'success' %}
+                <div class="alert alert-success" role="alert">{{ message }}</div>
+                {% elif message.tags == 'error' %}
+                <div class="alert alert-danger" role="alert">{{ message }}</div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    <h1>Perfil do Usuário</h1>
+    <p>Nome de Usuário: {{ user.username }}</p>
+    <p>Nome: {{ user.first_name }}</p>
+    <p>Divisão: {{ user.last_name }}</p>
+    <p>Email: {{ user.email }}</p>
+    {% endblock %}
+

@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% load permission_tags %}
+{% block title %}Pagina Inicial{% endblock %}
+{% block content %}
+
+{% csrf_token %}
+
+        {% if messages %}
+            {% for message in messages %}
+                {% if message.tags == 'success' %}
+                <div class="alert alert-success" role="alert">{{ message }}</div>
+                {% elif message.tags == 'error' %}
+                <div class="alert-error alert" role="alert">{{ message }}</div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+	<div class="container">
+        <br />      
+        <p> <a href="/nova_numeracao/{{ tipo_id }}" class="btn btn-primary">NOVA NUMERAÇÃO</a></p>
+        
+            <br />
+       
+            <input id="gfg" type="text" placeholder="Pesquisar documento">
+  
+
+                <table class="table" id="geeks">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th style="text-align: center">Número</th>
+                            <th style="text-align: center">Data</th>
+                    
+                            <th style="text-align: center">Tipo</th>
+                            <th style="text-align: center">Setor</th>
+                            <th style="text-align: center">Destino</th>
+                            <th style="text-align: center">Doc SIGAD</th>
+                            
+                            {% if user.is_staff %}
+                            <th style="text-align: center">Usuário</th>
+                            {% endif %}
+                            <th style="text-align: center">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for data in dataset %}
+                        <tr>
+                            <td style="text-align: center">{{ data.doc_numero }}/{{ data.create_year }}</td>
+                            <td style="text-align: center">{{ data.create_date }}</td>
+                            <td style="text-align: center">{{ data.fk_tipo }}</td>
+                            <td style="text-align: center">{{ data.fk_setor }}</td>
+                            <td style="text-align: center">{{ data.fk_destino }}</td>
+                            <td style="text-align: center">{{ data.doc_sigad_origem }}</td>
+                            <!-- <td style="text-align: center">{{ data.texto }}</td> -->
+                            {% if user.is_staff %}
+                            <td style="text-align: center">{{ data.fk_user }}</td>
+                            {% endif %}
+                            <td style="text-align: center">
+                                {% if data.fk_user ==  user %}
+                                <a href="/editar_numeracao/{{ data.id }}/" class="btn btn-primary">EDITAR</a>
+                                <a href="/delete_numeracao/{{ data.id }}/" class="btn btn-danger">EXCLUIR</a>
+                                <a href="/generate_pdf/{{ data.id }}/" class="btn btn-warning" target="_blank">GERAR PDF</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    $(document).ready(function() {
+        $("#gfg").on("keyup", function() {
+            var value = $(this).val().toLowerCase();
+            $("#geeks tr").filter(function() {
+                // Mantém o cabeçalho sempre visível
+                if (!$(this).find('th').length) {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+                }
+            });
+        });
+    });
+    
+</script>
+
+
+{% endblock %}

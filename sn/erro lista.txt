@@ -1,0 +1,40 @@
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+
+def lista_numeracao(request, id, divisao_id=None):
+    # Garantir que divisao_id seja um valor válido
+    if divisao_id:
+        dataset = Numeracao.objects.filter(fk_tipo_id=id, fk_divisao_id=divisao_id).order_by('-id')
+    else:
+        dataset = Numeracao.objects.none()  # Define um queryset vazio
+
+    # Define o número de itens por página
+    items_per_page = 10
+
+    # Cria o objeto Paginator para o queryset
+    paginator = Paginator(dataset, items_per_page)
+
+    # Obter o número da página da query string (se estiver disponível)
+    page = request.GET.get('page')
+
+    try:
+        # Obter os objetos da página solicitada
+        paginated_dataset = paginator.page(page)
+    except PageNotAnInteger:
+        # Se o parâmetro da página não for um número, mostrar a primeira página
+        paginated_dataset = paginator.page(1)
+    except EmptyPage:
+        # Se a página estiver fora dos limites (por exemplo, página 9999), mostrar a última página
+        paginated_dataset = paginator.page(paginator.num_pages)
+
+    for item in paginated_dataset:
+        item.create_year = item.create_at.year
+
+    context = {
+        'user': request.user,  # Passando o usuário logado para o template
+        "dataset": paginated_dataset,
+        "tipo_id": id,
+    }
+    context.update(gera_menu())  # Mescla o contexto existente com o menu
+
+    return render(request, "sn/numeracao/lista_numeracao.html", context)
+

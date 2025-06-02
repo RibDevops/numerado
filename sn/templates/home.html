@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}SNDO{% endblock %}
+{% block content %}
+<!-- Security token -->
+{% csrf_token %}
+<div class="container">
+    <div class="row">
+    <div class="col-md-15">
+		<h1>Bem vindo - {{ request.user.first_name }}</h1>
+		<h1>Sistema de Controle de Documentos Online</h1>
+
+    <h2>Descrição:</h2>
+    <p>O Sistema de Controle de Documentos Online (SNDO) é uma aplicação web desenvolvida para gerenciar e controlar o processo de Controle de documentos de uma organização de forma eficiente e organizada. O SNDO permite que os usuários criem, editem, excluam e visualizem registros de documentos, associando-os a tipos específicos, além de definir destinos para cada documento.</p>
+
+    <h2>Funções do Sistema:</h2>
+    <ol>
+        <li><strong>Cadastro de Tipos de Documento:</strong> Permite que usuários com permissão definam os tipos de documentos que a organização utiliza.</li>
+        <li><strong>Cadastro de Usuários:</strong> Permite que administradores criem contas de usuário para utilização do sistema.</li>
+        <li><strong>Cadastro de Números de Documento:</strong> Usuários com permissão podem criar novos números de documentos associados aos tipos de documentos definidos anteriormente.</li>
+        <li><strong>Listagem de Números de Documento:</strong> Exibe uma lista paginada com todos os números de documentos registrados no sistema.</li>
+        <li><strong>Edição de Números de Documento:</strong> Permite que os usuários autorizados editem informações de números de documentos previamente cadastrados.</li>
+        <li><strong>Exclusão de Números de Documento:</strong> Usuários com permissão podem excluir números de documentos específicos do sistema.</li>
+        <li><strong>Permissões de Acesso:</strong> O sistema controla as permissões de acesso às funções, garantindo que apenas usuários autorizados possam executar determinadas ações.</li>
+        <li><strong>Paginação de Registros:</strong> O sistema implementa a paginção dos registros listados, para evitar sobrecarga na exibição de grandes quantidades de informações em uma única página.</li>
+        <li><strong>Proteção contra Ações Não Autorizadas:</strong> O sistema protege contra a execução de ações não autorizadas, como editar ou excluir números de documentos de outros usuários, a menos que o usuário seja um superusuário.</li>
+    </ol>
+
+    <p>O Sistema de Controle de Documentos Online (SNDO) foi desenvolvido para tornar o gerenciamento de documentos mais ágil e seguro, proporcionando controle sobre os números de documentos utilizados na organização. Com as funcionalidades descritas acima, o SNDO oferece aos usuários um ambiente organizado e controlado para o registro e rastreamento de documentos, ajudando a melhorar a eficiência e a produtividade no gerenciamento documental.</p>
+    </div>
+    </div>
+    </div>
+    
+{% endblock %}

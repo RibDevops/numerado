@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ title }}</title>
+    <style>
+        /* Estilo geral do corpo */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Configurações para a impressão de páginas */
+        @page {
+            margin: 100px 50px; /* Margens da página */
+            @top-right {
+                margin-bottom: -30%; /* Margem inferior para o topo direito */
+                content: "FL " counter(page) "/" counter(pages); /* Conteúdo da numeração de página */
+                font-size: 12px; /* Tamanho da fonte para a numeração */
+                text-align: right; /* Alinhamento à direita */
+            }
+        }
+
+        /* Estilo para o cabeçalho */
+        .header {
+            position: fixed;
+            top: -60px; /* Posiciona o cabeçalho no topo da página */
+            left: 15%; /* Margem à esquerda */
+            right: 0;
+            height: 100px; /* Altura do cabeçalho */
+            text-align: center; /* Alinhamento centralizado do texto */
+        }
+
+        /* Estilo específico para o cabeçalho das páginas subsequentes */
+        .header-second-page {
+            margin-top: 100px; /* Ajuste conforme necessário */
+        }
+
+        /* Estilo para a primeira seção de conteúdo */
+        .content0 {
+            margin-top: 10px; /* Espaçamento superior para evitar sobreposição com o cabeçalho */
+            margin-right: 50px; /* Margem à direita */
+            margin-left: 50px; /* Margem à esquerda */
+        }
+
+        /* Estilo para a seção principal de conteúdo */
+        .content {
+            margin-top: 50px; /* Espaçamento superior para evitar sobreposição com o cabeçalho */
+            margin-right: 50px; /* Margem à direita */
+            margin-left: 50px; /* Margem à esquerda */
+            text-align: justify; /* Justificação do texto */
+        }
+
+        /* Estilo para o rodapé */
+        .footer {
+            position: fixed;
+            bottom: -80px; /* Posiciona o rodapé no fundo da página */
+            left: 15%; /* Margem à esquerda */
+            right: 0;
+            height: 100px; /* Altura do rodapé */
+            text-align: center; /* Alinhamento centralizado do texto */
+        }
+
+        /* Estilo para o carimbo */
+        .carimbo {
+            position: fixed; /* Posição fixa para aparecer em todas as páginas */
+            bottom: 825px; /* Ajuste conforme necessário */
+            right: 1px; /* Ajuste conforme necessário */
+            
+        }
+
+        /* Classe para forçar quebra de página */
+        .page-break {
+            page-break-after: always; /* Quebra de página após o elemento */
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        {% block cabecalho_rodape_cabecalho %}
+        {{ cabecalho_rodape|safe }}
+        {% endblock %}
+    </div>
+
+    {% block header_second_page %}
+    <div class="header-second-page">
+        (Continuação do Informe N° xxx/xxx/24/CIAER, de dd de mmmm de 2024.)
+    </div>
+    {% endblock %}
+
+    <div class="carimbo">
+        <img src="media/carimbo.png" width="50" height="50">
+    </div>
+
+    <div class="content0">
+        {% block cabecalho2 %}
+        {{ cm|safe }}
+            {{ ci|safe }}
+            {{ tipo|safe }}
+        {% endblock %}
+    </div>
+
+    <div class="content">
+        {% block content %}
+            {{ texto|safe }}
+            {{ fechamento1|safe }}
+            {{ fechamento2|safe }}
+        {% endblock %}
+    </div>
+
+    <div class="footer">
+        {% block cabecalho_rodape_rodape %}
+            {{ cabecalho_rodape|safe }}
+        {% endblock %}
+    </div>
+</body>
+</html>

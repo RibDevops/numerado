@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %}Gráficos de Documentos - {{ ano }}{% endblock %}
+{% block content %}
+{% load permission_tags %} 
+
+<!-- Security token -->
+{% csrf_token %}
+
+    <div class="col-8 m-auto pt-4 pb-2">
+        {% if messages %}
+            {% for message in messages %}
+                {% if message.tags == 'success' %}
+                <div class="alert alert-success" role="alert">{{ message }}</div>
+                {% elif message.tags == 'error' %}
+                <div class="alert alert-danger" role="alert">{{ message }}</div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+        <h1>Gráficos de Documentos - {{ ano }}</h1>
+        <div>
+            <h2>Total de Documentos no Ano</h2>
+            <img src="data:image/png;base64,{{ image_base64_1 }}" alt="Gráfico de Pizza - Total de Documentos no Ano">
+        </div>
+        <div>
+            <h2>Total de Documentos por Tipo</h2>
+            <img src="data:image/png;base64,{{ image_base64_2 }}" alt="Gráfico de Pizza - Documentos por Tipo">
+        </div>
+        <div>
+            <h2>Total de Documentos por Divisão</h2>
+            <img src="data:image/png;base64,{{ image_base64_3 }}" alt="Gráfico de Pizza - Documentos por Divisão">
+        </div>
+        <div>
+            <h2>Tipos de Documentos por Divisão</h2>
+            <img src="data:image/png;base64,{{ image_base64_4 }}" alt="Gráfico de Pizza - Tipos de Documentos por Divisão">
+        </div>
+    <p><a href="{% url 'listar_anos' %}" class="btn btn-primary">Voltar para lista de anos</a></p>
+    
+    {% endblock %}
+
+
+    <h1>Gráficos</h1>
+    <div>
+        <h2>Total de Documentos no Ano</h2>
+        <img src="data:image/png;base64,{{ image_base64_1 }}" alt="Gráfico de Pizza - Total de Documentos no Ano">
+    </div>
+    <div>
+        <h2>Total de Documentos por Tipo</h2>
+        <img src="data:image/png;base64,{{ image_base64_2 }}" alt="Gráfico de Pizza - Documentos por Tipo">
+    </div>
+    <div>
+        <h2>Total de Documentos por Divisão</h2>
+        <img src="data:image/png;base64,{{ image_base64_3 }}" alt="Gráfico de Pizza - Documentos por Divisão">
+    </div>
+    <div>
+        <h2>Tipos de Documentos por Divisão</h2>
+        <img src="data:image/png;base64,{{ image_base64_4 }}" alt="Gráfico de Pizza - Tipos de Documentos por Divisão">
+    </div>
