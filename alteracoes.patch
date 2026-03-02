@@ -1,0 +1,834 @@
+diff --git a/code_review_tasks.md b/code_review_tasks.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..3fb514db520a3a2db3f4d53f3e27a8da25930210
+--- /dev/null
++++ b/code_review_tasks.md
+@@ -0,0 +1,32 @@
++# Revisão rápida da base e tarefas sugeridas
++
++## 1) Tarefa de correção de erro de digitação
++**Problema encontrado:** o plural configurado para o modelo `Numeracao` está como `"Numeros"`, sem acento, enquanto o restante do projeto usa acentuação em português.
++
++**Tarefa sugerida:** ajustar `verbose_name_plural` para `"Números"` no `Meta` de `Numeracao`.
++
++**Critério de aceite:** o Django Admin passa a exibir o plural acentuado corretamente.
++
++## 2) Tarefa de correção de bug
++**Problema encontrado:** o método `__str__` de `Encaminhamento` referencia `self.numeracao`, atributo que não existe no modelo (o campo correto é `doc_numero`). Isso tende a gerar `AttributeError` ao renderizar objetos dessa classe.
++
++**Tarefa sugerida:** alterar o `__str__` para usar `self.doc_numero` (ou outro campo válido), e cobrir o caso com teste.
++
++**Critério de aceite:** instâncias de `Encaminhamento` podem ser convertidas para string sem exceção.
++
++## 3) Tarefa para ajustar comentário/discrepância de documentação
++**Problema encontrado:** há um comentário dizendo que não deveria haver campo único de destino (`"não pode pq é necessário colocar vários destinos"`), porém a implementação atual usa `ForeignKey` para um único `fk_destino`.
++
++**Tarefa sugerida:** alinhar comentário e implementação: ou remover/atualizar o comentário para refletir a regra atual, ou evoluir o modelo para suportar múltiplos destinos (ex.: `ManyToManyField`) se esse for o requisito real.
++
++**Critério de aceite:** comentário e comportamento do modelo ficam consistentes com a regra de negócio definida.
++
++## 4) Tarefa para melhorar teste
++**Problema encontrado:** o arquivo de testes da app `sn` está vazio (apenas o stub padrão do Django).
++
++**Tarefa sugerida:** criar testes unitários iniciais para:
++- `__str__` dos modelos principais (`Numeracao`, `Encaminhamento`);
++- validação do método `clean` de `Numeracao` (normalização de `doc_sigad_origem`);
++- fluxo mínimo de criação de `Numeracao` em view crítica.
++
++**Critério de aceite:** suite da app `sn` executa com casos reais cobrindo comportamento básico de modelos e uma view.
+diff --git a/docs/fluxo_refatoracao_sn.md b/docs/fluxo_refatoracao_sn.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..f1a2f7ea3d4cfdcce91c9dce7c75c5a9ea0ee7e7
+--- /dev/null
++++ b/docs/fluxo_refatoracao_sn.md
+@@ -0,0 +1,46 @@
++# 🔧 Refatoração mínima da app `sn` (mapa + mudanças + regressão)
++
++## 1) Mapa de funções e fluxo
++
++### Núcleo do fluxo de documentos (`views_numeracao.py`)
++1. `nova_numeracao` cria registros de numeração por destino.
++2. `lista_numeracao` lista documentos visíveis para a divisão/setor.
++3. `adicionar_anexo` anexa arquivo a um documento.
++4. `encaminhar_documento` registra encaminhamento para um setor.
++5. `devolver_documento` remove encaminhamento quando o setor devolve.
++
++## 2) O que foi refatorado (mínimo, sem alterar regra de negócio)
++
++### a) Limpeza de código não usado
++- Removido bloco grande de código legado comentado no topo de `views_numeracao.py`.
++- Removidos imports duplicados e não utilizados.
++
++### b) Correções de inconsistência de nomes de campos
++- Padronizado uso de `doc_numero` em vez de `documento` nas rotas de anexos/encaminhamento.
++- Corrigido filtro de devolução para `doc_numero_id`.
++
++### c) Comentários de documentação no código
++- Adicionados docstrings nas funções:
++  - `adicionar_anexo`
++  - `encaminhar_documento`
++  - `devolver_documento`
++- Comentário descritivo no módulo para deixar explícito o escopo do arquivo.
++
++## 3) Testes de regressão básicos adicionados
++
++Arquivo: `sn/tests.py`
++
++- `test_numeracao_clean_normaliza_sigad_para_maiusculo`
++- `test_encaminhamento_str_usa_doc_numero_sem_attribute_error`
++- `test_encaminhamento_model_expoe_campo_doc_numero`
++- `test_anexo_model_expoe_campo_doc_numero`
++
++## 4) Benefício prático das mudanças
++- Menos risco de `AttributeError` por nome de campo inconsistente.
++- Menor ruído no arquivo de view principal.
++- Base mais legível para evoluções futuras (ex.: extrair serviços para encaminhamento/anexos).
++
++## 5) Próximos passos sugeridos
++- Extrair regras de autorização de `lista_numeracao` para funções auxiliares.
++- Criar testes de integração de views com `RequestFactory`.
++- Adicionar validação de permissões de encaminhamento/devolução por divisão.
+diff --git a/sn/models.py b/sn/models.py
+index a2dc69d700c74f8b2d03dc6a398674d76a00b887..cf0f185c1a4c32f40051bb608598dd88254cb53f 100755
+--- a/sn/models.py
++++ b/sn/models.py
+@@ -1,138 +1,140 @@
+ from django.db import models
+ from django.contrib.auth.models import User, AbstractUser, Group, Permission
+ # from tinymce.models import HTMLField
+ 
+ from django.db import models
+ from ckeditor.fields import RichTextField
+ 
+ class MyModel(models.Model):
+     content = RichTextField()
+ 
+ class Divisao(models.Model):
+     id = models.AutoField(primary_key=True)
+     divisao = models.CharField(max_length=30, verbose_name="Divisão")
+     create_at = models.DateTimeField(auto_now_add=True)
+     
+     def __str__(self): # adicionar isso
+         return self.divisao
+     
+     class Meta:  # adicionar isso
+         verbose_name = 'Divisão'
+         verbose_name_plural = 'Divisões'
+         ordering = ['id']
+ 
+-class Divisao(models.Model):
++class Destino(models.Model):
+     id = models.AutoField(primary_key=True)
+     destino = models.CharField(max_length=30, verbose_name="Destino")
+     create_at = models.DateTimeField(auto_now_add=True)
+     
+     def __str__(self): # adicionar isso
+         return self.destino
+     
+     class Meta:  # adicionar isso
+         verbose_name = 'Destino'
+         verbose_name_plural = 'Destinos'
+         ordering = ['id']
+ 
+ class Tipo(models.Model):
+     id = models.AutoField(primary_key=True)
+     tipo_doc = models.CharField(max_length=30, verbose_name="Tipo do documento")
+     create_at = models.DateTimeField(auto_now_add=True)
+     
+     def __str__(self): # adicionar isso
+         return self.tipo_doc
+     
+     class Meta:  # adicionar isso
+         verbose_name = 'Tipo'
+         verbose_name_plural = 'Tipos'
+         ordering = ['id']
+ 
+ class Setor(models.Model):
+     id = models.AutoField(primary_key=True)
+     fk_divisao = models.ForeignKey(Divisao, on_delete=models.PROTECT, verbose_name="Divisão", null=True, blank=True)
+     fk_user = models.ForeignKey(User, on_delete=models.PROTECT, verbose_name="Usuário/Setor", null=True, blank=True)
+     setor = models.CharField(max_length=30, verbose_name="Setor")
+     create_at = models.DateTimeField(auto_now_add=True)
+     
+     def __str__(self):  # Personalize o método __str__
+         return str(self.setor)  # Retorne o valor do campo 'setor'
+ 
+     class Meta:
+         verbose_name = 'Setor'
+         verbose_name_plural = 'Setores'
+         ordering = ['id']
+ 
+ class Numeracao(models.Model):
+     id = models.AutoField(primary_key=True)
+     fk_tipo = models.ForeignKey(Tipo, on_delete=models.CASCADE, verbose_name="Tipo do Documento")
+     fk_user = models.ForeignKey(User, on_delete=models.PROTECT, verbose_name="Usuário", null=True, blank=True)
+     fk_divisao = models.ForeignKey(Divisao, on_delete=models.PROTECT, verbose_name="Divisão", null=True, blank=True)
+     fk_setor = models.ForeignKey(Setor, on_delete=models.PROTECT, verbose_name="Setor", null=True, blank=True)
+-    fk_destino = models.ForeignKey(Destino, on_delete=models.PROTECT, verbose_name="Destino")# - não pode pq e necessário colocar vários destinos
++    fk_destino = models.ForeignKey(
++        Destino,
++        on_delete=models.PROTECT,
++        verbose_name="Destino",
++    )  # Regra atual: um destino por registro de numeração.
+     doc_despacho = RichTextField(verbose_name="Despacho", null=True, blank=True)
+     # doc_destino = models.CharField(max_length=200, verbose_name="Destino", null=True, blank=True)
+     # fk_ano_numeracao = models.ForeignKey(Ano_Numeracao, on_delete=models.PROTECT, verbose_name="Ano do Documento")
+     doc_sigad_origem = models.CharField(max_length=200, verbose_name="SIGAD Origem", null=True, blank=True)
+     doc_numero = models.IntegerField(verbose_name="Número do documento", null=True, blank=True)
+     title = models.CharField(max_length=200)
+     # texto = HTMLField(verbose_name="Texto", null=True, blank=True)
+     texto = RichTextField(verbose_name="Texto", null=True, blank=True)
+     
+     create_at = models.DateTimeField(auto_now_add=True)
+     
+     def __str__(self): # adicionar isso
+         # return self.doc_numero
+         return str(self.doc_numero)
+     
+     class Meta:  # adicionar isso
+         verbose_name = 'Número'
+-        verbose_name_plural = 'Numeros'
++        verbose_name_plural = 'Números'
+         ordering = ['id']
+     
+     def get_field_names(self):
+         return [field.name for field in self._meta.get_fields()]
+     def clean(self):
+             # self.doc_destino = str(self.doc_desmodels.IntegerField(verbose_name="Número do documento")tino.upper())
+             self.doc_sigad_origem = str(self.doc_sigad_origem.upper())
+ 
+ import os
+ from django.utils.text import slugify
+ import os
+ from django.utils.text import slugify
+ from datetime import datetime
+ 
+ # models.py (acima ou fora da classe)
+ 
+ def rename_anexo(instance, filename):
+     ext = filename.split('.')[-1]
+     tipo = slugify(instance.doc_numero.fk_tipo.tipo_doc)
+     numero = f"{instance.doc_numero.doc_numero}_{tipo}"
+     timestamp = datetime.now().strftime('%Y%m%d%H%M%S%f')
+     novo_nome = f"{numero}_ANEXO_{slugify(os.path.splitext(filename)[0])}_{timestamp}.{ext}"
+     return f"anexos/{novo_nome}"
+ 
+ 
+ class Anexo(models.Model):
+     id = models.AutoField(primary_key=True)
+     doc_numero = models.ForeignKey(Numeracao, on_delete=models.CASCADE, related_name='anexos')
+     imagem = models.ImageField(upload_to=rename_anexo)
+     nome_original = models.CharField(max_length=255, blank=True)
+     enviado_em = models.DateTimeField(auto_now_add=True)
+ 
+     def __str__(self):
+         return f"Anexo - Doc {self.doc_numero}"
+ 
+ 
+ class Encaminhamento(models.Model):
+     doc_numero = models.OneToOneField(Numeracao, on_delete=models.CASCADE, related_name="encaminhamento")
+     origem_divisao = models.ForeignKey(Divisao, on_delete=models.PROTECT)
+     destino_setor = models.ForeignKey(Setor, on_delete=models.PROTECT)
+     observacao = models.TextField(null=True, blank=True)
+     encaminhado_por = models.ForeignKey(User, on_delete=models.PROTECT)
+     data_envio = models.DateTimeField(auto_now_add=True)
+ 
+ 
+     def __str__(self):
+-        return f"Encaminhado para {self.destino_setor} - {self.numeracao}"
+-
+-
++        return f"Encaminhado para {self.destino_setor} - {self.doc_numero}"
+diff --git a/sn/tests.py b/sn/tests.py
+index 7ce503c2dd97ba78597f6ff6e4393132753573f6..1ebfc259abfaaac656dca537efa34f8317b66130 100755
+--- a/sn/tests.py
++++ b/sn/tests.py
+@@ -1,3 +1,43 @@
+-from django.test import TestCase
++from django.test import SimpleTestCase
+ 
+-# Create your tests here.
++from sn.models import Anexo, Destino, Divisao, Encaminhamento, Numeracao, Setor, Tipo
++
++
++class ModelBehaviorTests(SimpleTestCase):
++    """Testes de regressão básica para contratos de modelos usados nas views."""
++
++    def test_numeracao_clean_normaliza_sigad_para_maiusculo(self):
++        numeracao = Numeracao(doc_sigad_origem="abc-123")
++
++        numeracao.clean()
++
++        self.assertEqual(numeracao.doc_sigad_origem, "ABC-123")
++
++    def test_encaminhamento_str_usa_doc_numero_sem_attribute_error(self):
++        divisao = Divisao(divisao="DTI")
++        destino = Destino(destino="Arquivo")
++        tipo = Tipo(tipo_doc="Memorando")
++        setor = Setor(setor="Protocolo", fk_divisao=divisao)
++        numeracao = Numeracao(fk_tipo=tipo, fk_destino=destino, doc_numero=42, title="Doc")
++        encaminhamento = Encaminhamento(
++            doc_numero=numeracao,
++            origem_divisao=divisao,
++            destino_setor=setor,
++        )
++
++        valor = str(encaminhamento)
++
++        self.assertIn("Encaminhado para", valor)
++        self.assertIn("42", valor)
++
++    def test_encaminhamento_model_expoe_campo_doc_numero(self):
++        campos = {field.name for field in Encaminhamento._meta.get_fields()}
++
++        self.assertIn("doc_numero", campos)
++        self.assertNotIn("documento", campos)
++
++    def test_anexo_model_expoe_campo_doc_numero(self):
++        campos = {field.name for field in Anexo._meta.get_fields()}
++
++        self.assertIn("doc_numero", campos)
++        self.assertNotIn("documento", campos)
+diff --git a/sn/views/views_numeracao.py b/sn/views/views_numeracao.py
+index 36521d83a929a1bec51f228d0e5ec913fee8598f..c791025e0e744658ed3de7588bdc4770a7d67e87 100755
+--- a/sn/views/views_numeracao.py
++++ b/sn/views/views_numeracao.py
+@@ -1,376 +1,105 @@
+ import os
++
+ from django.conf import settings
+-from django.contrib.auth.decorators import login_required
+-from sn.forms import NumeracaoForm
+ from django.contrib import messages
+-from django.contrib.auth.models import User
+-from sn.views import gera_menu
+-from django.contrib.auth.models import User
+-from datetime import datetime
+-from django.db import transaction, connection
+-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+-from django.shortcuts import render, redirect, get_object_or_404
+-from ..models import Destino, Encaminhamento, Numeracao, Divisao, Setor, Tipo
+-from django.http import JsonResponse
+-
++from django.contrib.auth.decorators import login_required
++from django.db import transaction
++from django.shortcuts import get_object_or_404, redirect, render
+ 
+-from collections import defaultdict
++from sn.forms import NumeracaoForm
+ from sn.models import Anexo
+-# @login_required
+-# def cadastrar_number(request):
+-#     #print(request.POST)
+-#     # fk_tipo_value = request.POST.get('fk_tipo')
+-#     fk_tipo_value = int(request.POST.get('fk_tipo'))
+-#     #print(fk_tipo_value)
+-#     # Obter o objeto Tipo com base no ID fornecido
+-#     tipo = get_object_or_404(Tipo, pk=fk_tipo_value)
+-
+-#     # Obter o último nome do usuário logado
+-#     user_last_name = request.user.last_name
+-#     #print(f'divisao - {user_last_name}')
+-    
+-#     # Encontrar o ID da Divisao que corresponde ao último nome do usuário
+-#     try:
+-#         divisao = Divisao.objects.get(divisao=user_last_name)
+-#     except Divisao.DoesNotExist:
+-#         divisao = None  # Ou qualquer outro tratamento de exceção que desejar
+-
+-#     if request.method == 'POST':
+-#         #print('*************************************************')
+-#         #print(request.POST)
+-#         #print('*************************************************')
+-#         form = NumeracaoForm(request.POST)
+-#         if form.is_valid():
+-#             #print('apos form valido')
+-#             #print('if form.is_valid():')
+-#             # Obter o usuário logado atualmente
+-#             user = request.user
+-#             # Acessar o item 'fk_tipo' do POST
+-            
+-#             doc_destino = request.POST.get('doc_destino')
+-
+-#             #print(f'O tipo é: {fk_tipo_value}')
+-#             #print(f'Os destinos: {doc_destino}')
+-#             #print(request.POST.get('fk_user'))
+-            
+-#             destinos = doc_destino.split(", ")
+-#             #print(f'destino - {destinos}')
+-#             destinos_uppercase = [destino.strip().upper() for destino in destinos]
+-#             #print(f'destinos_uppercase - {destinos_uppercase}')
+-
+-#             # Verificar se o usuário é uma instância do modelo User
+-#             if isinstance(user, User):
+-#                 with transaction.atomic():
+-#                     # Criar a instância de Numeracao sem salvá-la no banco de dados ainda
+-#                     numeracao = form.save(commit=False)
+-#                     numeracao.fk_user = user  # Atribuir o usuário logado ao campo fk_user
+-
+-#                     # Restante do código...
+-
+-#                     # Para cada destino individual, criar uma nova instância de Numeracao e salvar no banco de dados
+-#                     for destino in destinos_uppercase:
+-#                         numeracao_destino = Numeracao(
+-#                             fk_tipo=tipo,  # Atribuir a instância de Tipo, não o ID
+-#                             # fk_tipo=fk_tipo_value,
+-#                             fk_user=numeracao.fk_user,
+-#                             fk_divisao = divisao,
+-#                             fk_setor=numeracao.fk_setor,
+-#                             doc_destino=destino,
+-#                             doc_sigad_origem=numeracao.doc_sigad_origem,
+-#                             doc_numero=numeracao.doc_numero,
+-#                             texto=numeracao.texto
+-#                         )
+-
+-#                         # Imprimir o SQL de inserção antes de salvar o objeto Numeracao com o destino atual no banco de dados
+-#                         #print('SQL de inserção para objeto Numeracao_destino:')
+-#                         #print(connection.queries)
+-
+-#                         # Salvar o objeto Numeracao com o destino atual no banco de dados
+-#                         # #print(f'numeracao_destino - {numeracao_destino.fk_setor}')
+-#                         numeracao_destino.save()
+-
+-#                 messages.add_message(request, messages.SUCCESS, 'Número(s) cadastrado(s) com sucesso')
+-
+-#             else:
+-#                 #print('1')
+-#                 #print('erro:')
+-#                 #print(form.errors)
+-#                 # Caso o usuário não seja uma instância do modelo User, retorne uma mensagem de erro ou faça o tratamento adequado.
+-#                 messages.add_message(request, messages.ERROR, 'Erro ao cadastrar número. Usuário inválido.')
+-#         else:
+-#             #print('erro:')
+-#             print(form.errors)
+-
+-#     else:
+-#         #print('2')
+-#         #print('erro:')
+-#         print(form.errors)
+-        
+-#         # form = NumeracaoForm()
+-
+-#     return redirect('lista_numeracao', id=fk_tipo_value)
+-
+-
+-# @login_required
+-# def nova_numeracao(request):
+-#     context ={}
+-#     if request.method == 'POST':
+-#         fk_tipo_value = int(request.POST.get('fk_tipo'))
+-# #     #print(fk_tipo_value)
+-#         form = NumeracaoForm(request.POST)
+-#         if form.is_valid():
+-#             form.save()
+-#             messages.success(request, 'Registro feito com sucesso.')
+-#             return redirect('lista_numeracao', id=fk_tipo_value)  # Redirecione para a lista após criar
+-#     else:
+-#         # form = DestinoForm()
+-#         context['form']= NumeracaoForm()
+-#         context.update(gera_menu())  # Mescla o contexto existente com o menu
+-    
+-#     # return render(request, 'caixa/criar.html', {'form': form})
+-#     return render(request, 'sn/destino/novo_destino.html', context)
+-# def nova_numeracao(request, tipo_id):
+-#     context ={}
+-#     fk_tipo_value = int(tipo_id)
+-
+-#     if request.method == 'POST':
+-#         form = NumeracaoForm(request.POST)
+-#         if form.is_valid():
+-#             numeracao = form.save(commit=False)  # Don't save to the database yet
+-#             numeracao.fk_tipo_id = fk_tipo_value  # Set fk_tipo explicitly
+-#             numeracao.save()  # Now save the instance
+-#             # form.save()
+-
+-#             messages.success(request, 'Registro feito com sucesso.')
+-#             return redirect('lista_numeracao', id=fk_tipo_value)  # Redirecione para a lista após criar
+-#     else:
+-#     # Obter o último nome do usuário logado
+-#         user_last_name = request.user.last_name
+-#         #print(f'divisao - {user_last_name}')
+-        
+-#         # Encontrar o ID da Divisao que corresponde ao último nome do usuário
+-#         try:
+-#             divisao = Divisao.objects.get(divisao=user_last_name)
+-#             divisao_id = divisao.id
+-#             print(f'divisao_id - {divisao_id}')
+-
+-#             setores = Setor.objects.filter(fk_divisao=divisao_id)
+-#             # Obter os setores como uma lista de tuplas (id, valor)
+-#             setores_choices = [(setor.id, setor.setor) for setor in setores]
+-#             #print(f'setores_choices - {setores_choices}')
+-
+-#         except Divisao.DoesNotExist:
+-#             divisao_id = None  # Ou qualquer outro tratamento de exceção que desejar
+-#             setores_choices = []
+-
+-#         context = {}
+-
+-#         ultimo_registro = Numeracao.objects.filter(fk_tipo_id=fk_tipo_value, fk_divisao_id=divisao_id).order_by('-id').first()
+-#         if ultimo_registro:
+-#             ano_corrente = datetime.now().year
+-#             ano_ultimo_registro = ultimo_registro.create_at.year
+-
+-#             if ano_corrente != ano_ultimo_registro:
+-#                 doc_numero = 1
+-#             else:
+-#                 doc_numero = ultimo_registro.doc_numero + 1
+-#         else:
+-#             # Se não houver último registro, definimos doc_numero como 1 por padrão
+-#             doc_numero = 1
+-
+-#         initial_data = {'fk_tipo': fk_tipo_value, 'fk_user': request.user.pk, 'doc_numero': doc_numero, 'fk_divisao': divisao_id}
+-#         #print(f'request.POST - {request.POST}')
+-        
+-#         form = NumeracaoForm(request.POST or None, initial=initial_data, setores_choices=setores_choices)
+-        
+-#         context['form'] = form
+-        
+-#         tipo_numeracao = Tipo.objects.filter(id=tipo_id)
+-#         #print(tipo_numeracao)
+-        
+-#         context.update(gera_menu())  # Mescla o contexto existente com o menu
+-#         context['ultimo_registro'] = ultimo_registro  # Mescla o contexto existente com o menu
+-#         context['tipo_id'] = tipo_id  # Mescla o contexto existente com o menu
+-        
+-#         return render(request, "sn/numeracao/nova_numeracao.html", context)
+-
+-
+-# def nova_numeracao(request, tipo_id):
+-#     context = {}
+-#     fk_tipo_value = int(tipo_id)
+-
+-#     # Obter divisão do usuário
+-#     try:
+-#         divisao = Divisao.objects.get(divisao=request.user.last_name)
+-#         divisao_id = divisao.id
+-#         setores = Setor.objects.filter(fk_divisao=divisao_id)
+-#         setores_choices = [(setor.id, setor.setor) for setor in setores]
+-#     except Divisao.DoesNotExist:
+-#         divisao_id = None
+-#         setores_choices = []
++from sn.views import gera_menu
+ 
+-#     if request.method == 'POST':
+-#         print(request.POST)
+-        
+-#         form = NumeracaoForm(request.POST, setores_choices=setores_choices)
+-        
+-#         if form.is_valid():
+-#             # Obter todos os destinos selecionados (eliminando valores vazios)
+-#             destinos_ids = [int(id) for id in request.POST.getlist('destinos') if id]
+-            
+-#             if not destinos_ids:
+-#                 messages.error(request, 'Selecione pelo menos um destino!')
+-#                 return render(request, "sn/numeracao/nova_numeracao.html", context)
+-            
+-#             # Obter o último número para este tipo e divisão
+-#             ultimo_registro = Numeracao.objects.filter(
+-#                 fk_tipo_id=fk_tipo_value, 
+-#                 fk_divisao_id=divisao_id
+-#             ).order_by('-doc_numero').first()
+-            
+-#             # Definir o número inicial
+-#             doc_numero = 1 if not ultimo_registro else ultimo_registro.doc_numero + 1
+-            
+-#             # Salvar um registro para cada destino
+-#             saved_count = 0
+-#             for destino_id in destinos_ids:
+-#                 try:
+-#                     numeracao = form.save(commit=False)
+-#                     numeracao.fk_tipo_id = fk_tipo_value
+-#                     numeracao.fk_user = request.user
+-#                     numeracao.fk_divisao_id = divisao_id
+-#                     numeracao.fk_destino_id = destino_id
+-#                     numeracao.doc_numero = doc_numero
+-#                     numeracao.save()
+-#                     doc_numero += 1
+-#                     saved_count += 1
+-#                 except Exception as e:
+-#                     messages.error(request, f'Erro ao salvar destino ID {destino_id}: {str(e)}')
+-            
+-#             if saved_count > 0:
+-#                 messages.success(request, f'Documento(s) cadastrado(s) com sucesso! Números: {doc_numero - saved_count} a {doc_numero - 1}')
+-#                 return redirect('lista_numeracao', id=fk_tipo_value)
+-#     else:
+-#         # Lógica para número inicial
+-#         ultimo_registro = Numeracao.objects.filter(
+-#             fk_tipo_id=fk_tipo_value, 
+-#             fk_divisao_id=divisao_id
+-#         ).order_by('-doc_numero').first()
+-        
+-#         initial_data = {
+-#             'fk_tipo': fk_tipo_value,
+-#             'fk_user': request.user.pk,
+-#             'fk_divisao': divisao_id
+-#         }
+-        
+-#         form = NumeracaoForm(initial=initial_data, setores_choices=setores_choices)
+-    
+-#     context.update({
+-#         'form': form,
+-#         'tipo_id': tipo_id,
+-#         'ultimo_registro': ultimo_registro,
+-#         'destinos': Destino.objects.all(),
+-#     })
+-#     context.update(gera_menu())
+-    
+-#     return render(request, "sn/numeracao/nova_numeracao.html", context)
++from ..forms import AnexoForm, EncaminhamentoForm
++from ..models import Destino, Divisao, Encaminhamento, Numeracao, Setor
+ 
+-from django.contrib import messages
+-from django.shortcuts import render, redirect
+-from sn.models import Numeracao, Divisao, Setor, Destino, Tipo
+-from sn.forms import NumeracaoForm
+-from datetime import datetime
+-from django.contrib.auth.decorators import login_required
+-from django.db import transaction
++# Fluxo principal de numeração e encaminhamento de documentos.
+ 
+ @login_required
+ def nova_numeracao(request, tipo_id):
+     context = {}
+     fk_tipo_value = int(tipo_id)
+ 
+     # 🔎 Obtemos a divisão do usuário (baseado no sobrenome)
+     try:
+         divisao = Divisao.objects.get(divisao=request.user.last_name)
+         divisao_id = divisao.id
+         setores = Setor.objects.filter(fk_divisao=divisao_id)
+         setores_choices = [(s.id, s.setor) for s in setores]
+     except Divisao.DoesNotExist:
+         divisao_id = None
+         setores_choices = []
+ 
+     if request.method == 'POST':
+-        print(request.POST)
+         form = NumeracaoForm(request.POST, setores_choices=setores_choices)
+ 
+         if form.is_valid():
+             destinos_ids = [int(id) for id in request.POST.getlist('destinos') if id]
+ 
+             if not destinos_ids:
+                 messages.error(request, 'Selecione pelo menos um destino!')
+                 return render(request, "sn/numeracao/nova_numeracao.html", context)
+ 
+             # 📌 Obtém último número para esse tipo e divisão
+             ultimo_registro = Numeracao.objects.filter(
+                 fk_tipo_id=fk_tipo_value,
+                 fk_divisao_id=divisao_id
+             ).order_by('-doc_numero').first()
+ 
+             doc_numero = 1 if not ultimo_registro else ultimo_registro.doc_numero + 1
+ 
+             # 🎯 Salva um registro para cada destino com número sequencial
+             #saved_count = 0
+             try:
+                 with transaction.atomic():
+                     for destino_id in destinos_ids:
+                         numeracao = Numeracao(
+                             fk_tipo_id=fk_tipo_value,
+                             fk_user=request.user,
+                             fk_divisao_id=divisao_id,
+                             fk_setor=form.cleaned_data['fk_setor'],
+                             fk_destino_id=destino_id,
+                             doc_sigad_origem=form.cleaned_data['doc_sigad_origem'].upper(),
+                             texto=form.cleaned_data['texto'],
+                             doc_numero=doc_numero
+                         )
+                         numeracao.save()
+-                        print(f"Salvo doc {doc_numero} para destino {destino_id}")
+                         #doc_numero += 1
+                         #saved_count += 1
+ 
+                 messages.success(
+                     request,
+                     f'Documento(s) cadastrado(s) com sucesso! Número: {doc_numero}'
+                     # f'Documento(s) cadastrado(s) com sucesso! Número: {doc_numero - saved_count} a {doc_numero - 1}'
+                 )
+                 return redirect('lista_numeracao', id=fk_tipo_value)
+ 
+             except Exception as e:
+                 messages.error(request, f'Erro ao salvar documentos: {str(e)}')
+         else:
+             messages.error(request, 'Erro no formulário.')
+-            print(form.errors)
+ 
+     else:
+         # 📄 Inicializa o formulário na primeira carga (GET)
+         ultimo_registro = Numeracao.objects.filter(
+             fk_tipo_id=fk_tipo_value,
+             fk_divisao_id=divisao_id
+         ).order_by('-doc_numero').first()
+ 
+         initial_data = {
+             'fk_tipo': fk_tipo_value,
+             'fk_user': request.user.pk,
+             'fk_divisao': divisao_id
+         }
+ 
+         form = NumeracaoForm(initial=initial_data, setores_choices=setores_choices)
+ 
+     # 🔄 Atualiza contexto com form e lista de destinos
+     context.update({
+         'form': form,
+         'tipo_id': tipo_id,
+         'ultimo_registro': ultimo_registro,
+         'destinos': Destino.objects.all()
+     })
+     context.update(gera_menu())
+ 
+@@ -549,140 +278,114 @@ def lista_numeracao(request, id):
+                 docs_visiveis.append(doc)  # setor de destino vê (com ações)
+ 
+     # Mapear os anexos como você já fazia
+     # anexos_map = defaultdict(list)
+     anexos_map = {}
+     for anexo in Anexo.objects.select_related('doc_numero__fk_tipo', 'doc_numero__fk_divisao'):
+         chave = (
+             anexo.doc_numero.doc_numero,
+             anexo.doc_numero.fk_tipo_id,
+             anexo.doc_numero.fk_divisao_id
+         )
+         anexos_map.setdefault(chave, []).append(anexo)
+ 
+ 
+     context = {
+         "user": user,
+         "tipo_id": tipo_id,
+         "dataset": docs_visiveis,
+         "anexos_map": anexos_map,
+     }
+     context.update(gera_menu())
+     return render(request, "sn/numeracao/lista_numeracao.html", context)
+ 
+ 
+ 
+-from ..forms import AnexoForm, EncaminhamentoForm
+-from ..models import Anexo
+-
+-# views_numeracao.py
+-
+ @login_required
+ def adicionar_anexo(request, tipo_id, doc_numero):
++    """Adiciona anexo ao documento selecionado pela combinação tipo+número+divisão."""
+     try:
+-        # Certifique-se que está encontrando o documento correto
+         documento = Numeracao.objects.get(
+             doc_numero=doc_numero,
+             fk_tipo_id=tipo_id,
+             fk_divisao__divisao=request.user.last_name
+         )
+-        
+-        if request.method == 'POST':
+-            form = AnexoForm(request.POST, request.FILES)
+-            if form.is_valid():
+-                anexo = form.save(commit=False)
+-                anexo.doc_numero = documento  # Definir o relacionamento
+-                anexo.save()
+-                messages.success(request, "Anexo enviado com sucesso.")
+-                return redirect('lista_numeracao', tipo_id)
+     except Numeracao.DoesNotExist:
+         messages.error(request, "Documento não encontrado.")
+         return redirect('lista_numeracao', tipo_id)
+ 
+     if request.method == 'POST':
+         form = AnexoForm(request.POST, request.FILES)
+         if form.is_valid():
+             anexo = form.save(commit=False)
+-            anexo.documento = documento
++            anexo.doc_numero = documento
+             anexo.nome_original = form.cleaned_data['imagem'].name
+             anexo.save()
+             messages.success(request, "Anexo enviado com sucesso.")
+             return redirect('lista_numeracao', tipo_id)
+     else:
+         form = AnexoForm()
+ 
+     return render(request, 'sn/anexos/adicionar_anexo.html', {
+         'form': form,
+         'numeracao': documento,
+-        'tipo_id': tipo_id,  # ✅ Adicione esta linha
++        'tipo_id': tipo_id,
+     })
+ 
+ 
+ 
+ 
+ 
+ @login_required
+ def excluir_anexo(request, id):
+     anexo = get_object_or_404(Anexo, id=id)
+ 
+-    numeracao = anexo.doc_numero
+-    tipo_id = numeracao.fk_tipo.id
+-    divisao_id = numeracao.fk_divisao.id
+-    doc_numero = numeracao.doc_numero
+-
+-
+-    # Apaga o arquivo físico
++    # Remove também o arquivo físico do anexo para não deixar órfãos em disco.
+     if anexo.imagem:
+         caminho = os.path.join(settings.MEDIA_ROOT, anexo.imagem.name)
+         if os.path.exists(caminho):
+             os.remove(caminho)
+ 
+     anexo.delete()
+     messages.success(request, "Anexo excluído com sucesso.")
+-    # return redirect('lista_numeracao', tipo_id)
+     return redirect('lista_numeracao', anexo.doc_numero.fk_tipo.id)
+ 
+-
+-
+-from django.shortcuts import render, redirect, get_object_or_404
+-from sn.models import Numeracao, Setor
+-from django.contrib import messages
+-from django.contrib.auth.decorators import login_required
+-from ..forms import EncaminhamentoForm  # você criará esse form abaixo
+-
+ @login_required
+ def encaminhar_documento(request, id):
++    """Encaminha documento para um setor, registrando origem e usuário remetente."""
+     documento = get_object_or_404(Numeracao, id=id)
+ 
+     if request.method == 'POST':
+         form = EncaminhamentoForm(request.POST)
+         if form.is_valid():
+             encaminhamento = form.save(commit=False)
+-            encaminhamento.documento = documento
++            encaminhamento.doc_numero = documento
+             encaminhamento.origem_divisao = documento.fk_divisao
+             encaminhamento.destino_setor = form.cleaned_data['destino_setor']
+             encaminhamento.observacao = form.cleaned_data['observacao']
+-            encaminhamento.encaminhado_por = request.user  # 🛠️ Esta linha resolve o erro
++            encaminhamento.encaminhado_por = request.user
+             encaminhamento.save()
+ 
+             messages.success(request, 'Documento encaminhado com sucesso.')
+             return redirect('lista_numeracao', documento.fk_tipo.id)
+     else:
+         form = EncaminhamentoForm()
+ 
+     return render(request, 'sn/numeracao/encaminhar_documento.html', {
+         'form': form,
+         'documento': documento
+     })
+ 
+ 
+ 
+ @login_required
+ def devolver_documento(request, id):
+-    encaminhamento = get_object_or_404(Encaminhamento, documento_id=id)
++    """Remove encaminhamento quando o setor de destino devolve o documento."""
++    encaminhamento = get_object_or_404(Encaminhamento, doc_numero_id=id)
+     if encaminhamento.destino_setor.fk_user == request.user:
++        tipo_id = encaminhamento.doc_numero.fk_tipo.id
+         encaminhamento.delete()
+         messages.success(request, "Documento devolvido com sucesso.")
+     else:
++        tipo_id = encaminhamento.doc_numero.fk_tipo.id
+         messages.error(request, "Você não tem permissão para devolver este documento.")
+-    return redirect('lista_numeracao', encaminhamento.documento.fk_tipo.id)
+-
++    return redirect('lista_numeracao', tipo_id)

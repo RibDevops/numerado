@@ -21,7 +21,7 @@ class Divisao(models.Model):
         verbose_name_plural = 'Divisões'
         ordering = ['id']
 
-class Divisao(models.Model):
+class Destino(models.Model):
     id = models.AutoField(primary_key=True)
     destino = models.CharField(max_length=30, verbose_name="Destino")
     create_at = models.DateTimeField(auto_now_add=True)
@@ -68,7 +68,11 @@ class Numeracao(models.Model):
     fk_user = models.ForeignKey(User, on_delete=models.PROTECT, verbose_name="Usuário", null=True, blank=True)
     fk_divisao = models.ForeignKey(Divisao, on_delete=models.PROTECT, verbose_name="Divisão", null=True, blank=True)
     fk_setor = models.ForeignKey(Setor, on_delete=models.PROTECT, verbose_name="Setor", null=True, blank=True)
-    fk_destino = models.ForeignKey(Destino, on_delete=models.PROTECT, verbose_name="Destino")# - não pode pq e necessário colocar vários destinos
+    fk_destino = models.ForeignKey(
+        Destino,
+        on_delete=models.PROTECT,
+        verbose_name="Destino",
+    )  # Regra atual: um destino por registro de numeração.
     doc_despacho = RichTextField(verbose_name="Despacho", null=True, blank=True)
     # doc_destino = models.CharField(max_length=200, verbose_name="Destino", null=True, blank=True)
     # fk_ano_numeracao = models.ForeignKey(Ano_Numeracao, on_delete=models.PROTECT, verbose_name="Ano do Documento")
@@ -86,7 +90,7 @@ class Numeracao(models.Model):
     
     class Meta:  # adicionar isso
         verbose_name = 'Número'
-        verbose_name_plural = 'Numeros'
+        verbose_name_plural = 'Números'
         ordering = ['id']
     
     def get_field_names(self):
@@ -133,6 +137,4 @@ class Encaminhamento(models.Model):
 
 
     def __str__(self):
-        return f"Encaminhado para {self.destino_setor} - {self.numeracao}"
-
-
+        return f"Encaminhado para {self.destino_setor} - {self.doc_numero}"
