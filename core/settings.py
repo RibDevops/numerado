@@ -37,9 +37,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-#CSRF_TRUSTED_ORIGINS = ['http://172.16.1.61', 'http://localhost', 'https://172.16.1.61']
 
-CSRF_TRUSTED_ORIGINS = ['http://10.100.0.34', 'http://localhost', 'http://demeter.ciaer.interna',  'https://sn.ciaer.interna']
+
+CSRF_TRUSTED_ORIGINS = ['http://localhost']
 # Application definition
 
 INSTALLED_APPS = [
@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'ckeditor',
     'ckeditor_uploader',
     'rolepermissions',
+    'sn.templatetags',
 ]
 
 MIDDLEWARE = [
@@ -92,6 +93,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'sn.context_processors.divisao_do_usuario',
             ],
         },
     },
@@ -100,12 +102,12 @@ TEMPLATES = [
 WSGI_APPLICATION = 'core.wsgi.application'
 
 AUTH_LDAP_SERVER_URI = "ldap://10.100.0.1:389"
-AUTH_LDAP_BIND_DN = "cn=django,ou=ciaer,dc=ciaer,dc=interna"
-AUTH_LDAP_BIND_PASSWORD = "P0rM41s7"
+AUTH_LDAP_BIND_DN = "cn=user_ldap,ou=xxxx,dc=xxxx,dc=interna"
+AUTH_LDAP_BIND_PASSWORD = "xxxxxx"
 
 AUTH_LDAP_USER_SEARCH = LDAPSearch(
-#            "ou=CIAER,dc=ciaer,dc=interna", ldap.SCOPE_SUBTREE, "(uid=%(user)s)"
-            "ou=CIAER,dc=ciaer,dc=interna", ldap.SCOPE_SUBTREE, "(sAMAccountName=%(user)s)"
+#            "ou=CIAER,dc=xxxx,dc=interna", ldap.SCOPE_SUBTREE, "(uid=%(user)s)"
+            "ou=CIAER,dc=xxxx,dc=interna", ldap.SCOPE_SUBTREE, "(sAMAccountName=%(user)s)"
             )
 
 AUTH_LDAP_USER_ATTR_MAP = {

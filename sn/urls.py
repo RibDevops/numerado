@@ -1,3 +1,4 @@
+from django import views
 from django.urls import path, include
 from .views.views_setor import *
 from .views.views_tipo import *
@@ -12,6 +13,9 @@ from .views import views_grafico
 from django.conf import settings
 from django.conf.urls.static import static
 # from .views import listar_anos, gerar_graficos
+
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('', home, name='home'),
@@ -56,7 +60,19 @@ urlpatterns = [
 # ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
     path('add_destino_popup/', add_destino_popup, name='add_destino_popup'),
+
+    # path('anexo/<int:id>/', adicionar_anexo, name='adicionar_anexo'),
+    path('anexo/<int:tipo_id>/<int:doc_numero>/', adicionar_anexo, name='adicionar_anexo'),
+
+    path('excluir_anexo/<int:id>/', excluir_anexo, name='excluir_anexo'),
+    path('encaminhar_documento/<int:id>/', encaminhar_documento, name='encaminhar_documento'),
+    path('devolver_documento/<int:id>/', devolver_documento, name='devolver_documento'),
+
+
+
+
 ]
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+

@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}Encaminhar Documento{% endblock %}
+{% block content %}
+<h3>Encaminhar Documento Nº {{ numeracao.doc_numero }}/{{ numeracao.create_at.year }}</h3>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-success">Encaminhar</button>
+    <a href="{% url 'lista_numeracao' numeracao.fk_tipo.id %}" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+  <h3>Anexar imagem ao documento nº {{ numeracao.doc_numero }}</h3>
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-success">Enviar Anexo</button>
+    <a href="{% url 'lista_numeracao' tipo_id %}" class="btn btn-secondary">Voltar</a>
+
+  </form>
+</div>
+{% endblock %}

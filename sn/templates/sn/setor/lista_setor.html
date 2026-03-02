@@ -26,6 +26,7 @@
               <tr>
                 <th style="text-align: center">Setor</th>
                 <th style="text-align: center">Divisão</th>
+                <th style="text-align: center">Usuário</th>
                 {% if user.is_staff %}
                 <th style="text-align: center">Ações</th>
                 {% endif %}
@@ -38,6 +39,7 @@
     <tr>
         <td style="text-align: center">{{ data.setor }}</td>
         <td style="text-align: center">{{ data.fk_divisao }}</td>
+        <td style="text-align: center">{{ data.fk_user }}</td>
         
         {% if user.is_staff %}
         <td style="text-align: center">

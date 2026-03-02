@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load permission_tags %}
+{% load extras %}
 {% block title %}Pagina Inicial{% endblock %}
 {% block content %}
 
@@ -54,14 +55,75 @@
                             <td style="text-align: center">{{ data.fk_user }}</td>
                             {% endif %}
                             <td style="text-align: center">
-                                {% if data.fk_user ==  user %}
-                                <a href="/editar_numeracao/{{ data.id }}/" class="btn btn-primary">EDITAR</a>
-                                <a href="/delete_numeracao/{{ data.id }}/" class="btn btn-danger">EXCLUIR</a>
-                                <a href="/generate_pdf/{{ data.id }}/" class="btn btn-warning" target="_blank">GERAR PDF</a>
-                                {% endif %}
-                            </td>
+    {% if not data.encaminhamento %}
+        {% if data.fk_divisao.divisao == user.last_name %}
+            <!-- Criador da divisão -->
+            <a href="{% url 'adicionar_anexo' data.fk_tipo.id data.doc_numero %}" class="btn btn-info">ANEXAR</a>
+            <a href="/editar_numeracao/{{ data.id }}/" class="btn btn-primary">EDITAR</a>
+            <a href="/delete_numeracao/{{ data.id }}/" class="btn btn-danger">EXCLUIR</a>
+            <a href="{% url 'encaminhar_documento' data.id %}" class="btn btn-secondary">ENCAMINHAR</a>
+            <!-- <a href="/generate_pdf/{{ data.id }}/" class="btn btn-warning" target="_blank">GERAR PDF</a> -->
+           
+            <a href="{% url 'generate_pdf' data.id %}" class="btn btn-warning" target="_blank">GERAR PDF</a>
+            
+
+        {% endif %}
+    {% else %}
+        {% if data.encaminhamento.destino_setor.fk_user == user %}
+    <!-- Sou o usuário do setor de destino -->
+    <a href="{% url 'adicionar_anexo' data.fk_tipo.id data.doc_numero %}" class="btn btn-info">ANEXAR</a>
+    <a href="/editar_numeracao/{{ data.id }}/" class="btn btn-primary">EDITAR</a>
+    <a href="{% url 'devolver_documento' data.id %}" class="btn btn-warning">DEVOLVER</a>
+    <a href="/generate_pdf/{{ data.id }}/" class="btn btn-warning" target="_blank">GERAR PDF</a>
+{% else %}
+    <span class="text-muted">Encaminhado</span>
+{% endif %}
+
+    {% endif %}
+</td>
+
+
                         </tr>
-                        {% endfor %}
+{% anexos_para anexos_map data.doc_numero data.fk_tipo.id data.fk_divisao.id as anexos %}
+
+
+{% if anexos %}
+<tr style="background-color: #f2f2f2;">
+    <td></td>
+    <td colspan="8" style="padding-left: 40px;">
+        <strong>📎 Anexos:</strong>
+        <ul style="margin-top: 8px; margin-bottom: 5px;">
+            {% for anexo in anexos %}
+            <li style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
+                <img src="{{ anexo.imagem.url }}" alt="thumbnail"
+                     style="max-height: 40px; border: 1px solid #ccc; padding: 2px; background: white;">
+                
+                <a href="{{ anexo.imagem.url }}" target="_blank" style="white-space: nowrap;">
+                    {{ anexo.imagem.name|basename }}
+                </a>
+
+                {% if data.fk_user == user and not data.encaminhamento %}
+                    <a href="{% url 'excluir_anexo' anexo.id %}" class="btn btn-sm btn-danger"
+                       onclick="return confirm('Tem certeza que deseja excluir este anexo?');">
+                       Excluir
+                    </a>
+                {% elif data.encaminhamento and data.encaminhamento.destino_setor.fk_user == user %}
+                    <a href="{% url 'excluir_anexo' anexo.id %}" class="btn btn-sm btn-danger"
+                       onclick="return confirm('Tem certeza que deseja excluir este anexo?');">
+                       Excluir
+                    </a>
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+    </td>
+</tr>
+{% endif %}
+
+{% endfor %}
+
+
+                        
                     </tbody>
                 </table>
             </div>

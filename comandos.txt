@@ -7,4 +7,5 @@ Execute o seguinte comando para instalar os módulos em modo offline:
 pip install --no-index --find-links=. <nome do pacote>
 
 
-<a class="nav-link" href="{% url 'perfil' %}">Perfil - {{ request.user.first_name }} - {{ request.user.last_name }}</a>
+
+pip install --no-index --find-links=modulos -r requirements.txt

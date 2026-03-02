@@ -1,27 +1,120 @@
 {% extends 'base.html' %}
-{% block title %}Pagina Inicial{% endblock %}
+{% block title %}Nova Numeração{% endblock %}
 {% block content %}
 
 <div class="container">
     <div class="row">
-        <div class="col-md-15">
-            <!-- Using the formset -->
-            
-            <form method="POST" enctype="multipart/form-data">
+        <div class="col-md-12">
+            <form method="POST" id="numeracaoForm">
                 {% csrf_token %}
                 {{ form.media }}
-                {{ form.as_p }}
-                <!-- <button class="button" onClick="window.open('{% url 'novo_destino' %}');">
-                    <span class="icon-plus">+</span>
-               </button> -->
+                
+                <!-- Campos fixos -->
+                <!-- Em vez de usar form.as_p -->
+<div class="mb-3">
+    <label>Setor:</label>
+    {{ form.fk_setor }}
+</div>
 
-               <a href="{% url 'novo_destino' %}" id="add_category" onclick="return showAddAnotherPopup(this);">Add New Category</a>
-               
-                <input style="width: 100%" type="submit" class="btn btn-primary" value="Cadastrar">
+<div class="mb-3">
+    <label>SIGAD Origem:</label>
+    {{ form.doc_sigad_origem }}
+</div>
+
+<div class="mb-3">
+    <label>Texto:</label>
+    {{ form.texto }}
+</div>
+
+{{ form.fk_user }}
+{{ form.fk_divisao }}
+{{ form.fk_tipo }}
+
+                
+                <!-- Campo de destino -->
+<div class="mb-3">
+    <label class="form-label">Destinos:</label>
+    <div id="destinos-container">
+        <!-- Apenas UM campo inicialmente -->
+        <div class="destino-group mb-2">
+            <select name="destinos" class="form-select destino-select" required>
+                <option value="">Selecione um destino</option>
+                {% for destino in destinos %}
+                    <option value="{{ destino.id }}">{{ destino.destino }}</option>
+                {% endfor %}
+
+            </select>
+            <button type="button" class="btn btn-danger btn-sm remove-destino ms-2" disabled>
+                <i class="bi bi-trash"></i>
+            </button>
+        </div>
+    </div>
+    <button type="button" id="add-destino" class="btn btn-secondary btn-sm mt-2">
+        <i class="bi bi-plus"></i> Adicionar outro destino
+    </button>
+</div>
+
+                
+                <button type="submit" class="btn btn-success">
+                    <i class="bi bi-save"></i> Cadastrar
+                </button>
             </form>
-            
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const container = document.getElementById('destinos-container');
+    const addButton = document.getElementById('add-destino');
+
+    function updateRemoveButtons() {
+        const groups = container.querySelectorAll('.destino-group');
+        groups.forEach((group, index) => {
+            const removeBtn = group.querySelector('.remove-destino');
+            removeBtn.disabled = groups.length === 1;
+        });
+    }
+
+    function addRemoveEvent(btn) {
+        btn.addEventListener('click', function () {
+            const group = btn.closest('.destino-group');
+            container.removeChild(group);
+            updateRemoveButtons();
+        });
+    }
+
+    // Inicializa o primeiro botão
+    const initialRemoveBtn = container.querySelector('.remove-destino');
+    addRemoveEvent(initialRemoveBtn);
+
+    addButton.addEventListener('click', function () {
+        const firstGroup = container.querySelector('.destino-group');
+        const newGroup = firstGroup.cloneNode(true);
+
+        // Limpa valor selecionado
+        const select = newGroup.querySelector('select');
+        select.value = '';
+        select.name = 'destinos';
+
+        const removeBtn = newGroup.querySelector('.remove-destino');
+        removeBtn.disabled = false;
+
+        container.appendChild(newGroup);
+        addRemoveEvent(removeBtn);
+        updateRemoveButtons();
+    });
+});
+</script>
+
+
+<style>
+.destino-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+</style>
+>
 
 {% endblock %}
