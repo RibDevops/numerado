@@ -44,3 +44,14 @@ numpy==2.2.6
 pillow==11.2.1
 python-ldap==3.4.4
 weasyprint==65.1
+Django==5.2.2
+django-auth-ldap
+django-ckeditor==6.7.2
+django-js-asset==3.1.2
+django-role-permissions==3.2.0
+gunicorn
+matplotlib
+numpy
+pillow
+python-ldap
+weasyprint

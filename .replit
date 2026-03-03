@@ -23,7 +23,7 @@ outputType = "webview"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "bash -c 'export LD_LIBRARY_PATH=/nix/store/1w5p5kp8qp1qg5jha6jv0m8kslwwagcj-gcc-14.2.1.20250322-lib/lib:$LD_LIBRARY_PATH && python manage.py runserver 0.0.0.0:5000'"
+args = "bash -c 'export LD_LIBRARY_PATH=/nix/store/1w5p5kp8qp1qg5jha6jv0m8kslwwagcj-gcc-14.2.1.20250322-lib/lib:$LD_LIBRARY_PATH && python3.11 manage.py runserver 0.0.0.0:5000'"
 waitForPort = 5000
 
 [[ports]]
@@ -32,4 +32,10 @@ externalPort = 80
 
 [nix]
 channel = "stable-25_05"
-packages = ["cairo", "chromedriver", "cyrus_sasl", "ffmpeg-full", "fontconfig", "freetype", "ghostscript", "glib", "gobject-introspection", "gtk3", "harfbuzz", "lcms2", "libcxx", "libffi", "libimagequant", "libjpeg", "libtiff", "libwebp", "libxcrypt", "openjpeg", "openldap", "pango", "pgadmin4", "pkg-config", "qhull", "tcl", "tk", "zlib", "gcc"]
+packages = ["cairo", "chromedriver", "cyrus_sasl", "ffmpeg-full", "fontconfig", "freetype", "gcc", "ghostscript", "glib", "gobject-introspection", "gtk3", "harfbuzz", "lcms2", "libcxx", "libffi", "libimagequant", "libjpeg", "libtiff", "libwebp", "libxcrypt", "openjpeg", "openldap", "pango", "pgadmin4", "pkg-config", "qhull", "tcl", "tk", "zlib"]
+
+[userenv]
+
+[userenv.shared]
+DJANGO_SECRET_KEY = "v(1&c!67o09n4&@gyyg05^889byo_$7ec7qefni)63v6td##$^"
+DJANGO_DEBUG = "True"
