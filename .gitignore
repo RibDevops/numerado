@@ -1,3 +1,7 @@
 /venv
 venv
 settings_base.py
+__pycache__/
+*.pyc
+
+/.env
