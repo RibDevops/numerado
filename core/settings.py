@@ -15,16 +15,10 @@ from pathlib import Path
 import posixpath
 from django.contrib import admin
 import logging
-import ldap
-from django_auth_ldap.config import *
-from django_auth_ldap.config import LDAPSearch
-import logging
 from logging.handlers import RotatingFileHandler
 from django.conf import settings
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -37,11 +31,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-
-
 CSRF_TRUSTED_ORIGINS = ['http://localhost']
-# Application definition
 
+# Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -73,18 +65,13 @@ SESSION_COOKIE_AGE = 3800
 
 ROOT_URLCONF = 'core.urls'
 
-
 INTERNAL_IPS = [
-    # ...
     '127.0.0.1',
-    # ...
 ]
 
 TEMPLATES = [
     {
-        
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        # 'DIRS': [os.path.join(BASE_DIR, 'templates'), ],
         'DIRS': [os.path.join(BASE_DIR, 'templates'), ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -100,36 +87,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'core.wsgi.application'
-
-AUTH_LDAP_SERVER_URI = "ldap://10.100.0.1:389"
-AUTH_LDAP_BIND_DN = "cn=user_ldap,ou=xxxx,dc=xxxx,dc=interna"
-AUTH_LDAP_BIND_PASSWORD = "xxxxxx"
-
-AUTH_LDAP_USER_SEARCH = LDAPSearch(
-#            "ou=CIAER,dc=xxxx,dc=interna", ldap.SCOPE_SUBTREE, "(uid=%(user)s)"
-            "ou=CIAER,dc=xxxx,dc=interna", ldap.SCOPE_SUBTREE, "(sAMAccountName=%(user)s)"
-            )
-
-AUTH_LDAP_USER_ATTR_MAP = {
-            "username": "sAMAccountName",
-#            "username": "uid",
-               "first_name": "name",
-                    "last_name": "physicalDeliveryOfficeName",
-			#"posto_nome": "cn",
-                       "email": "mail",
-}
-
-
-# AUTHENTICATION_BACKENDS = [
-#             'django_auth_ldap.backend.LDAPBackend',
-#             'django.contrib.auth.backends.ModelBackend',
-# ]
-
-# AUTHENTICATION_BACKENDS = [
-#              'core.backend.CustomLDAPBackend',
-#                  'django.contrib.auth.backends.ModelBackend',
-# ]
-
 
 # Define o caminho para o diretório de logs dentro do seu projeto Django
 LOGS_DIR = os.path.join(BASE_DIR, 'logs')
@@ -152,7 +109,7 @@ LOGGING = {
     },
     'handlers': {
         'file': {
-            'level': 'DEBUG',  # Ajuste o nível de log conforme necessário
+            'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
             'filename': LOG_FILE_PATH,
             'maxBytes': 10 * 1024 * 1024,  # 10 MB
@@ -163,39 +120,23 @@ LOGGING = {
     'loggers': {
         'django_auth_ldap': {
             'handlers': ['file'],
-            'level': 'DEBUG',  # Ajuste o nível de log conforme necessário
+            'level': 'DEBUG',
             'propagate': True,
         },
     },
 }
 
-
-
-
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-
 DATABASES = {
-   'default': {
-       'ENGINE': 'django.db.backends.sqlite3',
-       'NAME': BASE_DIR / 'db2.sqlite3',
-   }
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db2.sqlite3',
+    }
 }
-
-# DATABASES = {
-#       'default': {
-#           'ENGINE': 'django.db.backends.mysql',
-#           'NAME': 'sn',
-#           'USER': 'demeterdb',
-#           'PASSWORD': 'S1NdemeBD@01',
-#           'HOST': 'localhost',
-#           'PORT': '3306'
-#       }
-#  }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -211,31 +152,17 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
-
-
-
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
-
 LANGUAGE_CODE = 'pt-br'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
-
-# Caminho para os arquivos estáticos coletados
 STATIC_URL = '/static/'
-
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
-
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
@@ -244,31 +171,21 @@ STATICFILES_DIRS = [
 
 # Caminho para os arquivos de mídia
 MEDIA_URL = '/media/'
-# MEDIA_ROOT = '/var/www/doc/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media') 
-
 
 CKEDITOR_UPLOAD_PATH = "uploads/"
 
-
-
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
 
 ROLEPERMISSIONS_MODULE = "core.roles"
 
 LOGIN_URL = '/login/'
-
-LOGIN_REDIRECT_URL ='/'
+LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = "/"
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10 MB
-
-
 
 CKEDITOR_CONFIGS = {
     'default': {
@@ -277,4 +194,3 @@ CKEDITOR_CONFIGS = {
         'width': 1300,
     },
 }
-
