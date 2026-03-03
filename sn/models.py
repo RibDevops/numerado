@@ -7,9 +7,23 @@ from ckeditor.fields import RichTextField
 
 class MyModel(models.Model):
     content = RichTextField()
+    
+class Om(models.Model):
+    id = models.AutoField(primary_key=True)
+    om = models.CharField(max_length=100, verbose_name="OM")
+    create_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self): # adicionar isso
+        return self.om
+
+    class Meta:  # adicionar isso
+        verbose_name = 'OM'
+        verbose_name_plural = 'OMs'
+        ordering = ['id']
 
 class Divisao(models.Model):
     id = models.AutoField(primary_key=True)
+    fk_om = models.ForeignKey(Om, on_delete=models.PROTECT, verbose_name="OM_Divisão", null=True, blank=True)
     divisao = models.CharField(max_length=30, verbose_name="Divisão")
     create_at = models.DateTimeField(auto_now_add=True)
     
