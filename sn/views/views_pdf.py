@@ -53,9 +53,9 @@ def generate_pdf(request, id):
     
     data = {
         'title': 'PDF Report',
-        'cm': '<div style="text-align: center">COMANDO DA AERONÁUTICA</div>',
-        'ci': '<div style="text-align: center">CENTRO DE INTELIGÊNCIA DA AERONÁUTICA<br>',
-        'tipo': f'INFORME Nº {doc.doc_numero} / {doc.create_at.year} / CIAER</div>', 
+        'cm': '<div style="text-align: center">COMANDO</div>',
+        'ci': '<div style="text-align: center">CEN<br>',
+        'tipo': f'INFORME Nº {doc.doc_numero} / {doc.create_at.year} / CI</div>', 
         'texto': doc.texto,
         'fechamento1': fechamento1,
         'fechamento2': fechamento2,
