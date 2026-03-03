@@ -55,3 +55,4 @@ numpy
 pillow
 python-ldap
 weasyprint
+cffi==1.17.1
