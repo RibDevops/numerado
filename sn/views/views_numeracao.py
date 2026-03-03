@@ -5,7 +5,6 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
-
 from sn.forms import NumeracaoForm
 from sn.models import Anexo
 from sn.views import gera_menu
@@ -24,14 +23,13 @@ def nova_numeracao(request, tipo_id):
     try:
         divisao = Divisao.objects.get(divisao=request.user.last_name)
         divisao_id = divisao.id
-        setores = Setor.objects.filter(fk_divisao=divisao_id)
-        setores_choices = [(s.id, s.setor) for s in setores]
+        setores_queryset = Setor.objects.filter(fk_divisao=divisao_id)
     except Divisao.DoesNotExist:
         divisao_id = None
-        setores_choices = []
+        setores_queryset = Setor.objects.none()
 
     if request.method == 'POST':
-        form = NumeracaoForm(request.POST, setores_choices=setores_choices)
+        form = NumeracaoForm(request.POST, setores_queryset=setores_queryset)
 
         if form.is_valid():
             destinos_ids = [int(id) for id in request.POST.getlist('destinos') if id]
@@ -63,6 +61,7 @@ def nova_numeracao(request, tipo_id):
                             texto=form.cleaned_data['texto'],
                             doc_numero=doc_numero
                         )
+                        print("SETOR:", form.cleaned_data.get('fk_setor'))
                         numeracao.save()
                         #doc_numero += 1
                         #saved_count += 1
@@ -92,7 +91,7 @@ def nova_numeracao(request, tipo_id):
             'fk_divisao': divisao_id
         }
 
-        form = NumeracaoForm(initial=initial_data, setores_choices=setores_choices)
+        form = NumeracaoForm(initial=initial_data, setores_queryset=setores_queryset)
 
     # 🔄 Atualiza contexto com form e lista de destinos
     context.update({
