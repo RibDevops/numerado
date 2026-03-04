@@ -98,7 +98,7 @@ class DivisaoForm(forms.ModelForm):
     
     class Meta:
         model = Divisao
-        fields = ['divisao', 'fk_om', 'fk_user']
+        fields = ['divisao', 'fk_om']
 
 class DestinoForm(forms.ModelForm):
     class Meta:
