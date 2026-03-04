@@ -1,17 +1,24 @@
-import pdfkit
+import io
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
 from django.template.loader import render_to_string
+from weasyprint import HTML, CSS
+from weasyprint.text.fonts import FontConfiguration
 from ..models import Numeracao
 
+
 def generate_pdf(request, id):
-    # Obter o documento
     doc = get_object_or_404(Numeracao, pk=id)
     anexos = doc.anexos.all()
 
-    # Mesmo código de preparação dos dados que você já tem
     fechamento1 = '<div style="text-align: center">*.*.*</div>'
-    # ... (todo o resto igual)
+    fechamento2 = ''
+    cabecalho_rodape = ''
+    anexos_html = ''
+
+    for anexo in anexos:
+        if anexo.arquivo:
+            anexos_html += f'<p>{anexo.arquivo.name}</p>'
 
     data = {
         'title': 'PDF Report',
@@ -25,26 +32,11 @@ def generate_pdf(request, id):
         'anexos_html': anexos_html,
     }
 
-    # Renderizar template
     html_string = render_to_string('pdf/template.html', data)
 
-    # Opções do wkhtmltopdf
-    options = {
-        'page-size': 'A4',
-        'margin-top': '15mm',
-        'margin-right': '15mm',
-        'margin-bottom': '15mm',
-        'margin-left': '15mm',
-        'encoding': "UTF-8",
-        'no-outline': None,
-        'enable-local-file-access': None,  # Importante para acessar arquivos locais
-    }
-
-    # Caminho para o executável (no Replit)
-    config = pdfkit.configuration(wkhtmltopdf='/run/current-system/sw/bin/wkhtmltopdf')
-
-    # Gerar PDF
-    pdf_file = pdfkit.from_string(html_string, False, options=options, configuration=config)
+    font_config = FontConfiguration()
+    html = HTML(string=html_string, base_url=request.build_absolute_uri('/'))
+    pdf_file = html.write_pdf(font_config=font_config)
 
     response = HttpResponse(pdf_file, content_type='application/pdf')
     response['Content-Disposition'] = f'inline; filename="documento_{doc.doc_numero}_{doc.create_at.year}.pdf"'

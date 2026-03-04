@@ -56,3 +56,16 @@ pillow
 python-ldap
 weasyprint
 cffi==1.17.1
+cffi==1.17.1
+Django==5.2.2
+django-ckeditor==6.7.2
+django-js-asset==3.1.2
+django-role-permissions==3.2.0
+gunicorn
+matplotlib
+numpy
+pillow
+weasyprint
+django-ckeditor-5==0.2.18
+python-dateutil
+six
