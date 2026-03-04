@@ -24,6 +24,7 @@ class Om(models.Model):
 
 
 class Divisao(models.Model):
+    objects = models.Manager()
     id = models.AutoField(primary_key=True)
     fk_om = models.ForeignKey(Om, on_delete=models.PROTECT, verbose_name="OM_Divisão", null=True, blank=True)
     divisao = models.CharField(max_length=30, verbose_name="Divisão")
@@ -44,6 +45,7 @@ class Divisao(models.Model):
         ordering = ['id']
 
 class Destino(models.Model):
+    objects = models.Manager()
     id = models.AutoField(primary_key=True)
     destino = models.CharField(max_length=30, verbose_name="Destino")
     create_at = models.DateTimeField(auto_now_add=True)
@@ -57,6 +59,7 @@ class Destino(models.Model):
         ordering = ['id']
 
 class Tipo(models.Model):
+    objects = models.Manager()
     id = models.AutoField(primary_key=True)
     tipo_doc = models.CharField(max_length=30, verbose_name="Tipo do documento")
     create_at = models.DateTimeField(auto_now_add=True)
@@ -70,6 +73,7 @@ class Tipo(models.Model):
         ordering = ['id']
 
 class Setor(models.Model):
+    objects = models.Manager()
     id = models.AutoField(primary_key=True)
     fk_divisao = models.ForeignKey(Divisao, on_delete=models.PROTECT, verbose_name="Divisão", null=True, blank=True)
     fk_user = models.ForeignKey(User, on_delete=models.PROTECT, verbose_name="Usuário/Setor", null=True, blank=True)
@@ -85,6 +89,7 @@ class Setor(models.Model):
         ordering = ['id']
 
 class Numeracao(models.Model):
+    objects = models.Manager()
     id = models.AutoField(primary_key=True)
     fk_tipo = models.ForeignKey(Tipo, on_delete=models.CASCADE, verbose_name="Tipo do Documento")
     fk_user = models.ForeignKey(User, on_delete=models.PROTECT, verbose_name="Usuário", null=True, blank=True)
