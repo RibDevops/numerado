@@ -28,12 +28,7 @@ class Divisao(models.Model):
     id = models.AutoField(primary_key=True)
     fk_om = models.ForeignKey(Om, on_delete=models.PROTECT, verbose_name="OM_Divisão", null=True, blank=True)
     divisao = models.CharField(max_length=30, verbose_name="Divisão")
-    fk_user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name="%(app_label)s_%(class)s_created",
-        verbose_name="Usuário", blank=True, null=True
-    )
+
     create_at = models.DateTimeField(auto_now_add=True)
     
     def __str__(self): # adicionar isso
@@ -48,6 +43,7 @@ class Destino(models.Model):
     objects = models.Manager()
     id = models.AutoField(primary_key=True)
     destino = models.CharField(max_length=30, verbose_name="Destino")
+    fk_om = models.ForeignKey(Om, on_delete=models.PROTECT, verbose_name="OM_Divisão", null=True, blank=True)
     create_at = models.DateTimeField(auto_now_add=True)
     
     def __str__(self): # adicionar isso

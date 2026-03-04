@@ -99,14 +99,6 @@ class DivisaoForm(forms.ModelForm):
     class Meta:
         model = Divisao
         fields = ['divisao', 'fk_om', 'fk_user']
-        
-    def __init__(self, *args, **kwargs):
-        request = kwargs.pop('request')
-        super().__init__(*args, **kwargs)
-   
-
-
-
 
 class DestinoForm(forms.ModelForm):
     class Meta:
