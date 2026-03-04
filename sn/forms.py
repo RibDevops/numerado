@@ -88,6 +88,9 @@ class SetorForm(forms.ModelForm):
         self.fields['setor'].widget.attrs['class'] = 'form-control'
 
 class DivisaoForm(forms.ModelForm):
+    """
+    Formulário para o modelo Divisão.
+    """
     divisao = forms.CharField(widget=forms.TextInput(attrs={
         'style': 'text-transform:uppercase',
         'class': 'form-control'
@@ -96,6 +99,14 @@ class DivisaoForm(forms.ModelForm):
     class Meta:
         model = Divisao
         fields = ['divisao', 'fk_om', 'fk_user']
+        
+    def __init__(self, *args, **kwargs):
+        request = kwargs.pop('request')
+        super().__init__(*args, **kwargs)
+   
+
+
+
 
 class DestinoForm(forms.ModelForm):
     class Meta:
