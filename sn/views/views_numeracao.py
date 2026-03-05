@@ -104,7 +104,7 @@ def nova_numeracao(request, tipo_id):
 
     return render(request, "sn/numeracao/nova_numeracao.html", context)
 
-
+@login_required
 def editar_numeracao(request, id):
     numeracao = get_object_or_404(Numeracao, id=id)
 
@@ -247,6 +247,7 @@ from sn.models import Encaminhamento
 #     context.update(gera_menu())
 #     return render(request, "sn/numeracao/lista_numeracao.html", context)
 
+@login_required
 def lista_numeracao(request, id):
     tipo_id = id
     user = request.user
