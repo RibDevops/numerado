@@ -17,14 +17,16 @@
             {% endfor %}
         {% endif %}
         {% if user.is_staff %}
-        <a href="{% url 'novo_destino' %}" class="btn btn-success">NOVA DIVISÃO</a>
+        <a href="{% url 'novo_destino' %}" class="btn btn-success">NOVO</a>
         <p></p>
         {% endif %}
-        <h3>Lista de divisões</h3>
+        <h3>Lista de ELO</h3>
         <table class="table">
             <thead class="thead-dark">
               <tr>
-                <th style="text-align: center">Destino</th>
+                <th style="text-align: center">OM</th>
+                <th style="text-align: center">ELO</th>
+                
                 {% if user.is_staff %}
                 <th style="text-align: center">Ações</th>
                 {% endif %}
@@ -35,7 +37,9 @@
     {% for data in dataset %}
     
     <tr>
+        <td style="text-align: center">{{ data.fk_om }}</td>
         <td style="text-align: center">{{ data.destino }}</td>
+        
         
         {% if user.is_staff %}
         <td style="text-align: center">

@@ -17,8 +17,10 @@ def generate_pdf(request, id):
     anexos_html = ''
 
     for anexo in anexos:
-        if anexo.arquivo:
-            anexos_html += f'<p>{anexo.arquivo.name}</p>'
+        if anexo.imagem:
+            # WeasyPrint can handle absolute paths to files on the filesystem
+            image_path = anexo.imagem.path
+            anexos_html += f'<div style="text-align: center; margin-top: 20px;"><img src="file://{image_path}" style="max-width: 100%; height: auto;"></div>'
 
     data = {
         'title': 'PDF Report',
