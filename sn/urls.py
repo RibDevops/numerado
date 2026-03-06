@@ -62,7 +62,7 @@ urlpatterns = [
     path('add_destino_popup/', add_destino_popup, name='add_destino_popup'),
 
     # path('anexo/<int:id>/', adicionar_anexo, name='adicionar_anexo'),
-    path('anexo/<int:tipo_id>/<int:doc_numero>/', adicionar_anexo, name='adicionar_anexo'),
+    path('anexo/<int:id>/', adicionar_anexo, name='adicionar_anexo'),
 
     path('excluir_anexo/<int:id>/', excluir_anexo, name='excluir_anexo'),
     path('encaminhar_documento/<int:id>/', encaminhar_documento, name='encaminhar_documento'),

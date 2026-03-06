@@ -15,7 +15,7 @@
                 {% endif %}
             {% endfor %}
         {% endif %}
-	<div class="container">
+        <div class="container">
         <br />      
         <p> <a href="/nova_numeracao/{{ tipo_id }}" class="btn btn-primary">NOVA NUMERAÇÃO</a></p>
         
@@ -58,7 +58,7 @@
     {% if not data.encaminhamento %}
         {% if data.fk_divisao.divisao == user.last_name %}
             <!-- Criador da divisão -->
-            <a href="{% url 'adicionar_anexo' data.fk_tipo.id data.doc_numero %}" class="btn btn-info">ANEXAR</a>
+            <a href="{% url 'adicionar_anexo' data.id %}" class="btn btn-info">ANEXAR</a>
             <a href="/editar_numeracao/{{ data.id }}/" class="btn btn-primary">EDITAR</a>
             <a href="/delete_numeracao/{{ data.id }}/" class="btn btn-danger">EXCLUIR</a>
             <a href="{% url 'encaminhar_documento' data.id %}" class="btn btn-secondary">ENCAMINHAR</a>
@@ -71,7 +71,7 @@
     {% else %}
         {% if data.encaminhamento.destino_setor.fk_user == user %}
     <!-- Sou o usuário do setor de destino -->
-    <a href="{% url 'adicionar_anexo' data.fk_tipo.id data.doc_numero %}" class="btn btn-info">ANEXAR</a>
+    <a href="{% url 'adicionar_anexo' data.id %}" class="btn btn-info">ANEXAR</a>
     <a href="/editar_numeracao/{{ data.id }}/" class="btn btn-primary">EDITAR</a>
     <a href="{% url 'devolver_documento' data.id %}" class="btn btn-warning">DEVOLVER</a>
     <a href="/generate_pdf/{{ data.id }}/" class="btn btn-warning" target="_blank">GERAR PDF</a>

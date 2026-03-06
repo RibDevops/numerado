@@ -301,17 +301,10 @@ def lista_numeracao(request, id):
 
 
 @login_required
-def adicionar_anexo(request, tipo_id, doc_numero):
-    """Adiciona anexo ao documento selecionado pela combinação tipo+número+divisão."""
-    try:
-        documento = Numeracao.objects.get(
-            doc_numero=doc_numero,
-            fk_tipo_id=tipo_id,
-            fk_divisao__divisao=request.user.last_name
-        )
-    except Numeracao.DoesNotExist:
-        messages.error(request, "Documento não encontrado.")
-        return redirect('lista_numeracao', tipo_id)
+def adicionar_anexo(request, id):
+    """Adiciona anexo ao documento selecionado pelo ID único."""
+    documento = get_object_or_404(Numeracao, id=id)
+    tipo_id = documento.fk_tipo_id
 
     if request.method == 'POST':
         form = AnexoForm(request.POST, request.FILES)
