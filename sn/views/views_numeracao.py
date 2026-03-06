@@ -77,7 +77,14 @@ def nova_numeracao(request, tipo_id):
             except Exception as e:
                 messages.error(request, f'Erro ao salvar documentos: {str(e)}')
         else:
-            messages.error(request, 'Erro no formulário.')
+            error_messages = []
+            for field, errors in form.errors.items():
+                field_name = form.fields[field].label if field in form.fields else field
+                error_messages.append(f"{field_name}: {', '.join(errors)}")
+            
+            error_text = "Erro no formulário: " + " | ".join(error_messages)
+            messages.error(request, error_text)
+            print(f"DEBUG FORM ERRORS: {form.errors}")
 
     else:
         # 📄 Inicializa o formulário na primeira carga (GET)
