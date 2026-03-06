@@ -50,7 +50,7 @@ def generate_pdf(request, id):
         'title': 'PDF Report',
         'cm': '<div style="text-align: center">COMANDO</div>',
         'ci': '<div style="text-align: center">CEN<br>',
-        'tipo': f'INFORME Nº {doc.doc_numero} / {doc.create_at.year} / CI</div>',
+        'tipo': f'{doc.fk_tipo.tipo_doc} Nº {doc.doc_numero} / {doc.create_at.year} / CI</div>',
         'texto': doc.texto,
         'fechamento1': fechamento1,
         'fechamento2': fechamento2,
