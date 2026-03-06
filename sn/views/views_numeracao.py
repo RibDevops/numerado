@@ -18,6 +18,7 @@ from ..models import Destino, Divisao, Encaminhamento, Numeracao, Setor
 def nova_numeracao(request, tipo_id):
     context = {}
     fk_tipo_value = int(tipo_id)
+    ultimo_registro = None
 
     # 🔎 Obtemos a divisão do usuário (baseado no sobrenome)
     try:
