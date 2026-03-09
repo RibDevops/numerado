@@ -22,9 +22,9 @@ def nova_numeracao(request, tipo_id):
 
     # 🔎 Obtemos a divisão do usuário (baseado no sobrenome)
     try:
-        divisao = Divisao.objects.get(divisao=request.user.last_name)
+        divisao = Divisao.objects.get(divisao=request.user.last_name)  # type: ignore
         divisao_id = divisao.id
-        setores_queryset = Setor.objects.filter(fk_divisao=divisao_id)
+        setores_queryset = Setor.objects.filter(fk_divisao=divisao_id)  # type: ignore
     except Divisao.DoesNotExist:
         divisao_id = None
         setores_queryset = Setor.objects.none()
@@ -47,7 +47,7 @@ def nova_numeracao(request, tipo_id):
                 return render(request, "sn/numeracao/nova_numeracao.html", context)
 
             # 📌 Obtém último número para esse tipo e divisão
-            ultimo_registro = Numeracao.objects.filter(
+            ultimo_registro = Numeracao.objects.filter(  # type: ignore
                 fk_tipo_id=fk_tipo_value,
                 fk_divisao_id=divisao_id
             ).order_by('-doc_numero').first()
@@ -60,6 +60,7 @@ def nova_numeracao(request, tipo_id):
                 with transaction.atomic():
                     for destino_id in destinos_ids:
                         numeracao = Numeracao(
+                            title=form.cleaned_data['title'],
                             fk_tipo_id=fk_tipo_value,
                             fk_user=request.user,
                             fk_divisao_id=divisao_id,
@@ -95,7 +96,7 @@ def nova_numeracao(request, tipo_id):
 
     else:
         # 📄 Inicializa o formulário na primeira carga (GET)
-        ultimo_registro = Numeracao.objects.filter(
+        ultimo_registro = Numeracao.objects.filter(  # type: ignore
             fk_tipo_id=fk_tipo_value,
             fk_divisao_id=divisao_id
         ).order_by('-doc_numero').first()
@@ -113,7 +114,7 @@ def nova_numeracao(request, tipo_id):
         'form': form,
         'tipo_id': tipo_id,
         'ultimo_registro': ultimo_registro,
-        'destinos': Destino.objects.all()
+        'destinos': Destino.objects.all()  # type: ignore
     })
     context.update(gera_menu())
 
