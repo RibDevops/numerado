@@ -73,6 +73,7 @@ class Tipo(models.Model):
         verbose_name_plural = 'Tipos'
         ordering = ['tipo_doc']
 
+
 class Numeracao(models.Model):
     fk_tipo = models.ForeignKey(Tipo, on_delete=models.CASCADE, verbose_name="Tipo do Documento")
     fk_user = models.ForeignKey(User, on_delete=models.PROTECT, verbose_name="Usuário", null=True, blank=True)

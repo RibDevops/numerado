@@ -23,11 +23,25 @@
 <div class="mb-3">
     <label>Setor:</label>
     {{ form.fk_setor }}
+    {% if form.fk_setor.errors %}
+    <div class="alert alert-danger small">{{ form.fk_setor.errors }}</div>
+    {% endif %}
+</div>
+
+<div class="mb-3">
+    <label>Assunto/Título:</label>
+    {{ form.title }}
+    {% if form.title.errors %}
+    <div class="alert alert-danger small">{{ form.title.errors }}</div>
+    {% endif %}
 </div>
 
 <div class="mb-3">
     <label>SIGAD Origem:</label>
     {{ form.doc_sigad_origem }}
+    {% if form.doc_sigad_origem.errors %}
+    <div class="alert alert-danger small">{{ form.doc_sigad_origem.errors }}</div>
+    {% endif %}
 </div>
 
 <div class="mb-3">

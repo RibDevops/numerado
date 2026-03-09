@@ -51,6 +51,11 @@ class NumeracaoForm(forms.ModelForm):
     fk_tipo = forms.ModelChoiceField(queryset=Tipo.objects.all(), widget=forms.HiddenInput())
     fk_user = forms.ModelChoiceField(queryset=User.objects.all(), widget=forms.HiddenInput())
     fk_divisao = forms.ModelChoiceField(queryset=Divisao.objects.all(), widget=forms.HiddenInput())
+    title = forms.CharField(
+        label="Assunto/Título",
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Assunto do documento'}),
+        required=True
+    )
     
     texto = forms.CharField(
         label="Conteúdo do Documento",
@@ -62,7 +67,6 @@ class NumeracaoForm(forms.ModelForm):
         model = Numeracao
         fields = [
             "fk_setor",
-            "fk_destino",
             "doc_sigad_origem",
             "title",
             "texto",
@@ -73,13 +77,11 @@ class NumeracaoForm(forms.ModelForm):
         ]
         widgets = {
             'fk_setor': forms.Select(attrs={'class': 'form-control select2'}),
-            'fk_destino': forms.Select(attrs={'class': 'form-control select2'}),
             'doc_sigad_origem': forms.TextInput(attrs={
                 'style': 'text-transform:uppercase',
                 'class': 'form-control',
                 'placeholder': 'Ex: 67102.000123/2024-00'
             }),
-            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Assunto/Título'}),
             'doc_despacho': CKEditorWidget(),
         }
 

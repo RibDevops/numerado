@@ -37,6 +37,13 @@ def nova_numeracao(request, tipo_id):
 
             if not destinos_ids:
                 messages.error(request, 'Selecione pelo menos um destino!')
+                context.update({
+                    'form': form,
+                    'tipo_id': tipo_id,
+                    'ultimo_registro': ultimo_registro,
+                    'destinos': Destino.objects.all()
+                })
+                context.update(gera_menu())
                 return render(request, "sn/numeracao/nova_numeracao.html", context)
 
             # 📌 Obtém último número para esse tipo e divisão
