@@ -17,16 +17,15 @@
             {% endfor %}
         {% endif %}
         {% if user.is_staff %}
-        <a href="{% url 'novo_setor' %}" class="btn btn-success">NOVO SETOR</a>
+        <a href="{% url 'nova_om' %}" class="btn btn-success">NOVA OM</a>
         <p></p>
         {% endif %}
-        <h3>Lista de setores</h3>
+        <h3>Lista de OM</h3>
         <table class="table">
             <thead class="thead-dark">
               <tr>
-                <th style="text-align: center">Setor</th>
-                <th style="text-align: center">Divisão</th>
-                <th style="text-align: center">Usuário</th>
+                <th style="text-align: center">OM</th>
+              
                 {% if user.is_staff %}
                 <th style="text-align: center">Ações</th>
                 {% endif %}
@@ -37,14 +36,13 @@
     {% for data in dataset %}
     
     <tr>
-        <td style="text-align: center">{{ data.setor }}</td>
-        <td style="text-align: center">{{ data.fk_divisao }}</td>
-        <td style="text-align: center">{{ data.fk_user }}</td>
+        <td style="text-align: center">{{ data.om }}</td>
+      
         
         {% if user.is_staff %}
         <td style="text-align: center">
-            <a href="/editar_setor/{{ data.id }}/" class="btn btn-warning">EDITAR</a>
-            <a href="/delete_setor/{{ data.id }}/" class="btn btn-danger">EXCLUIR</a>
+            <a href="/editar_om/{{ data.id }}/" class="btn btn-warning">EDITAR</a>
+            <a href="/delete_om/{{ data.id }}/" class="btn btn-danger">EXCLUIR</a>
         </td>
         {% endif %}
     </tr>
