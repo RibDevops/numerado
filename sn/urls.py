@@ -10,6 +10,7 @@ from .views.views_pdf import *
 from .views.views_destinos import *
 from .views.views_popup import *
 from .views import views_grafico
+from .views.views_om import *
 from django.conf import settings
 from django.conf.urls.static import static
 # from .views import listar_anos, gerar_graficos
@@ -29,7 +30,12 @@ urlpatterns = [
     path('lista_setor/', lista_setor, name="lista_setor"),
     path('novo_setor/', novo_setor, name="novo_setor"),
     path('editar_setor/<int:id>/', editar_setor, name='editar_setor'),     
-    path('delete_setor/<int:id>/', delete_setor, name='delete_setor'),     
+    path('delete_setor/<int:id>/', delete_setor, name='delete_setor'),
+
+    path('lista_om/', lista_om, name="lista_om"),
+    path('nova_om/', nova_om, name="nova_om"),
+    path('editar_om/<int:id>/', editar_om, name='editar_om'),     
+    path('delete_om/<int:id>/', delete_om, name='delete_om'),   
 
     path('lista_numeracao/<int:id>/', lista_numeracao, name='lista_numeracao'),
     path('nova_numeracao/<tipo_id>', nova_numeracao, name="nova_numeracao"),
