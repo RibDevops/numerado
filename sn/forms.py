@@ -51,7 +51,11 @@ class NumeracaoForm(forms.ModelForm):
     fk_tipo = forms.ModelChoiceField(queryset=Tipo.objects.all(), widget=forms.HiddenInput())
     fk_user = forms.ModelChoiceField(queryset=User.objects.all(), widget=forms.HiddenInput())
     fk_divisao = forms.ModelChoiceField(queryset=Divisao.objects.all(), widget=forms.HiddenInput())
-    title = forms.ModelChoiceField(queryset=Divisao.objects.all(), widget=forms.HiddenInput())
+    title = forms.CharField(
+        label="Assunto/Título",
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Assunto do documento'}),
+        required=True
+    )
     
     texto = forms.CharField(
         label="Conteúdo do Documento",
