@@ -69,7 +69,7 @@ def delete_om(request, id):
 
 
 def editar_om(request, id):
-    om = get_object_or_404(Setor, id=id)
+    om = get_object_or_404(Om, id=id)
 
     if request.method == 'POST':
         form = OmForm(request.POST, instance=om)
