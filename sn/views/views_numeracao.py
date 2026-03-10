@@ -32,8 +32,11 @@ def nova_numeracao(request, tipo_id):
         divisao_id = None
         setores_queryset = Setor.objects.none()
 
+    # 🔎 Obtém o setor do usuário logado
+    setor_user = Setor.objects.filter(fk_user=request.user).first()  # type: ignore
+
     if request.method == 'POST':
-        form = NumeracaoForm(request.POST, setores_queryset=setores_queryset)
+        form = NumeracaoForm(request.POST, setores_queryset=setores_queryset, setor_usuario=setor_user)
 
         if form.is_valid():
             destinos_ids = [int(id) for id in request.POST.getlist('destinos') if id]
@@ -61,13 +64,16 @@ def nova_numeracao(request, tipo_id):
             #saved_count = 0
             try:
                 with transaction.atomic():
+                    # Se o campo está desabilitado, usa o setor do usuário
+                    setor_para_salvar = setor_user if setor_user else form.cleaned_data.get('fk_setor')
+                    
                     for destino_id in destinos_ids:
                         numeracao = Numeracao(
                             title=form.cleaned_data['title'],
                             fk_tipo_id=fk_tipo_value,
                             fk_user=request.user,
                             fk_divisao_id=divisao_id,
-                            fk_setor=form.cleaned_data['fk_setor'],
+                            fk_setor=setor_para_salvar,
                             fk_destino_id=destino_id,
                             doc_sigad_origem=form.cleaned_data['doc_sigad_origem'].upper(),
                             texto=form.cleaned_data['texto'],
@@ -110,7 +116,7 @@ def nova_numeracao(request, tipo_id):
             'fk_divisao': divisao_id
         }
 
-        form = NumeracaoForm(initial=initial_data, setores_queryset=setores_queryset)
+        form = NumeracaoForm(initial=initial_data, setores_queryset=setores_queryset, setor_usuario=setor_user)
 
     # 🔄 Atualiza contexto com form e lista de destinos
     context.update({

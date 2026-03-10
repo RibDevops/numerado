@@ -88,17 +88,33 @@ class NumeracaoForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         setores_queryset = kwargs.pop('setores_queryset', None)
+        setor_usuario = kwargs.pop('setor_usuario', None)
         super().__init__(*args, **kwargs)
 
         if setores_queryset is not None:
             self.fields['fk_setor'].queryset = setores_queryset
         
-        self.fields['fk_setor'].empty_label = "--- Selecione o Setor ---"
+        # Se o usuário tem um setor associado, pré-seleciona e desabilita o campo
+        if setor_usuario:
+            self.fields['fk_setor'].initial = setor_usuario
+            self.fields['fk_setor'].widget.attrs['disabled'] = True
+            self.fields['fk_setor'].empty_label = None
+        else:
+            self.fields['fk_setor'].empty_label = "--- Selecione o Setor ---"
 
         # Readonly para campos ocultos por segurança
         for field_name in ['fk_tipo', 'fk_user', 'fk_divisao']:
             if field_name in self.fields:
                 self.fields[field_name].widget.attrs['readonly'] = True
+    
+    def clean_fk_setor(self):
+        """Valida e retorna o setor mesmo quando está desabilitado"""
+        # Quando um campo está desabilitado, Django não inclui seus dados em cleaned_data
+        # Portanto, precisamos obter o valor do initial
+        setor = self.cleaned_data.get('fk_setor')
+        if not setor and self.fields['fk_setor'].initial:
+            return self.fields['fk_setor'].initial
+        return setor
 
     def clean_doc_sigad_origem(self):
         dados = self.cleaned_data.get('doc_sigad_origem')
