@@ -82,7 +82,7 @@
         {% if request.user|has_role:"sin" %}
 
         <li class="nav-item">
-          <a class="nav-link" href="#">Gráficos</a>
+          <a class="nav-link" href="{% url 'gerar_graficos' 2026 %}">Gráficos</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="{% url 'cadastro' %}">Cadastro</a>
@@ -111,16 +111,16 @@
 
   {% endblock %}
 
-	
-	{% block content %}
+        
+        {% block content %}
     <div class="row">
       <div class="col-8 mx-auto">
 
       </div>        
     </div>
       
-	
-	{% endblock %}
+        
+        {% endblock %}
 
   {% block rodape %}
 
@@ -129,6 +129,6 @@
 
  <script src="{% static '/js/bootstrap.bundle.min.js' %}"></script>
  
-	
+        
 </body>
 </html>

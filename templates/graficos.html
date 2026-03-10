@@ -16,7 +16,17 @@
                 {% endif %}
             {% endfor %}
         {% endif %}
-        <h1>Gráficos de Documentos - {{ ano }}</h1>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h1>Gráficos de Documentos - {{ ano }}</h1>
+            <div>
+                <label for="ano-select" style="margin-right: 10px;">Selecione o Ano:</label>
+                <select id="ano-select" class="form-select" style="width: 150px; display: inline-block;" onchange="window.location.href='/graficos/' + this.value + '/';">
+                    {% for ano_option in anos_disponiveis %}
+                        <option value="{{ ano_option }}" {% if ano_option == ano %}selected{% endif %}>{{ ano_option }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
         <div>
             <h2>Total de Documentos no Ano</h2>
             <img src="data:image/png;base64,{{ image_base64_1 }}" alt="Gráfico de Pizza - Total de Documentos no Ano">

@@ -9,11 +9,10 @@ from .views.views_grafico import *
 from .views.views_pdf import *
 from .views.views_destinos import *
 from .views.views_popup import *
-from .views import views_grafico
 from .views.views_om import *
 from django.conf import settings
 from django.conf.urls.static import static
-# from .views import listar_anos, gerar_graficos
+from .views.views_grafico import listar_anos, gerar_graficos
 
 from django.conf import settings
 from django.conf.urls.static import static

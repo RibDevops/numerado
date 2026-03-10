@@ -8,9 +8,10 @@ from sn.views import gera_menu
 
 
 def gerar_graficos(request, ano):
+    from datetime import datetime
     
     # Total de documentos no ano
-    total_documentos_ano = Numeracao.objects.filter(create_at__year=ano).count()
+    total_documentos_ano = Numeracao.objects.filter(create_at__year=ano).count()  # type: ignore
 
     # Total de documentos separados por tipo
     documentos_por_tipo = Numeracao.objects.filter(create_at__year=ano).values('fk_tipo__tipo_doc').annotate(total=Count('fk_tipo')).order_by('-total')
@@ -81,12 +82,25 @@ def gerar_graficos(request, ano):
     plt.close(fig4)
     image_base64_4 = base64.b64encode(buf4.getvalue()).decode('utf-8')
 
+    # Obtém a lista de anos disponíveis
+    from django.db.models import Min, Max
+    ano_min_obj = Numeracao.objects.aggregate(Min('create_at'))['create_at__min']  # type: ignore
+    ano_max_obj = Numeracao.objects.aggregate(Max('create_at'))['create_at__max']  # type: ignore
+    
+    if ano_min_obj and ano_max_obj:
+        ano_min = ano_min_obj.year
+        ano_max = ano_max_obj.year
+        anos_disponiveis = list(range(ano_max, ano_min - 1, -1))
+    else:
+        anos_disponiveis = [datetime.now().year]
+    
     context = {
         'image_base64_1': image_base64_1,
         'image_base64_2': image_base64_2,
         'image_base64_3': image_base64_3,
         'image_base64_4': image_base64_4,
-        'ano': ano
+        'ano': ano,
+        'anos_disponiveis': anos_disponiveis
     }
     context.update(gera_menu())
     return render(request, 'graficos.html', context)
