@@ -67,7 +67,6 @@ class NumeracaoForm(forms.ModelForm):
         model = Numeracao
         fields = [
             "fk_setor",
-            "fk_destino",
             "doc_sigad_origem",
             "title",
             "texto",
@@ -78,7 +77,6 @@ class NumeracaoForm(forms.ModelForm):
         ]
         widgets = {
             'fk_setor': forms.Select(attrs={'class': 'form-control select2'}),
-            'fk_destino': forms.Select(attrs={'class': 'form-control select2'}),
             'doc_sigad_origem': forms.TextInput(attrs={
                 'style': 'text-transform:uppercase',
                 'class': 'form-control',

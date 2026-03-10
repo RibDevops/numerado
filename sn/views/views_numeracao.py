@@ -16,6 +16,9 @@ from ..models import Destino, Divisao, Encaminhamento, Numeracao, Setor
 
 @login_required
 def nova_numeracao(request, tipo_id):
+    # Imprimir dados do POST (se existirem)
+    if request.method == 'POST':
+        print("POST data:", request.POST)
     context = {}
     fk_tipo_value = int(tipo_id)
     ultimo_registro = None
